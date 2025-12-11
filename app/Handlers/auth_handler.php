@@ -1,0 +1,73 @@
+<?php
+session_start();
+require_once '../Config/database.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $action = $_POST['action'];
+
+    if ($action == 'register') {
+        $username = trim($_POST['username']);
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        // Validation
+        if ($password !== $confirm_password) {
+            header("Location: /register.php?error=Passwords do not match");
+            exit();
+        }
+
+        // Check if username exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $stmt->store_result();
+        
+        if ($stmt->num_rows > 0) {
+            header("Location: /register.php?error=Username already taken");
+            exit();
+        }
+        $stmt->close();
+
+        // Create User
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $conn->prepare("INSERT INTO users (username, password, level, xp) VALUES (?, ?, 1, 0)");
+        $stmt->bind_param("ss", $username, $hashed_password);
+
+        if ($stmt->execute()) {
+            header("Location: /login.php?success=1");
+        } else {
+            header("Location: /register.php?error=Registration failed");
+        }
+        $stmt->close();
+
+    } elseif ($action == 'login') {
+        $username = trim($_POST['username']);
+        $password = $_POST['password'];
+
+        $stmt = $conn->prepare("SELECT id, username, password, level, role FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                // Set Session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['level'] = $user['level'];
+                $_SESSION['role'] = $user['role'];
+
+                header("Location: /lobby/");
+                exit();
+            } else {
+                header("Location: /login.php?error=Invalid password");
+            }
+        } else {
+            header("Location: /login.php?error=User not found");
+        }
+        $stmt->close();
+    }
+}
+$conn->close();
+?>
