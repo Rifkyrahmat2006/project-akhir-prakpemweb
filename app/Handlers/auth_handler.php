@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT id, username, password, level, role FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, level, role, xp FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -56,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['level'] = $user['level'];
+                $_SESSION['xp'] = $user['xp'];
                 $_SESSION['role'] = $user['role'];
 
                 if ($user['role'] === 'admin') {

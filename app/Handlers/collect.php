@@ -74,11 +74,12 @@ if ($insert->execute()) {
     }
 
     $leveled_up = false;
+    $_SESSION['xp'] = $current_xp; // Update Session XP
     if ($new_level > $current_avg_level) {
         $upd_level = $conn->prepare("UPDATE users SET level = ? WHERE id = ?");
         $upd_level->bind_param("ii", $new_level, $user_id);
         $upd_level->execute();
-        $_SESSION['level'] = $new_level; // Update Session
+        $_SESSION['level'] = $new_level; // Update Session Level
         $leveled_up = true;
     }
 

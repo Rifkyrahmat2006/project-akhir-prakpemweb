@@ -6,10 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-include '../header.php';
-include '../navbar.php';
-
-// Fetch Rooms from DB
+// Fetch Rooms from DB - MUST be before includes since navbar uses session data
 require_once '../../app/Config/database.php';
 
 $user_level = $_SESSION['level'] ?? 1;
@@ -18,21 +15,30 @@ $sql = "SELECT * FROM rooms ORDER BY min_level ASC";
 $result = $conn->query($sql);
 
 $rooms = [];
-if ($result->num_rows > 0) {
+if ($result && $result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $row['is_locked'] = ($user_level < $row['min_level']);
         $rooms[] = $row;
     }
 }
-$conn->close();
+
+include '../header.php';
+include '../navbar.php';
 ?>
 
-<div class="flex-grow container mx-auto px-4 py-8">
+<div class="flex-grow container mx-auto px-4 py-8 page-fade-in">
     <div class="text-center mb-12">
-        <h1 class="text-4xl text-gold mb-2">Museum Hall</h1>
+        <h1 class="text-4xl text-gold font-serif mb-2">Museum Hall</h1>
         <p class="text-gray-400">Select a room to begin your exploration.</p>
     </div>
 
+    <?php if (empty($rooms)): ?>
+    <div class="text-center py-20 bg-gray-900/50 rounded-lg border border-dashed border-gray-700">
+        <i class="fas fa-door-closed text-6xl text-gray-700 mb-4"></i>
+        <h3 class="text-xl text-gray-400 mb-2">No Rooms Available</h3>
+        <p class="text-gray-600">The museum is being prepared. Please check back later.</p>
+    </div>
+    <?php else: ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <?php foreach ($rooms as $room): ?>
             <div class="museum-card relative group rounded-lg overflow-hidden h-96">
@@ -71,6 +77,10 @@ $conn->close();
             </div>
         <?php endforeach; ?>
     </div>
+    <?php endif; ?>
 </div>
 
-<?php include '../footer.php'; ?>
+<?php 
+$conn->close();
+include '../footer.php'; 
+?>

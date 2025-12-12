@@ -72,7 +72,7 @@
 
             // Path adjustment: Since this file is included in files inside /lobby/, 
             // the relative path ../app/Handlers/collect.php is correct.
-            fetch('../app/Handlers/collect.php', {
+            fetch('../../app/Handlers/collect.php', {
                 method: 'POST',
                 body: formData
             })

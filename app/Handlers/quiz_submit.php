@@ -88,6 +88,7 @@ if ($is_correct) {
         $_SESSION['level'] = $new_level;
         $leveled_up = true;
     }
+    $_SESSION['xp'] = $current_xp; // Update Session XP
 }
 
 echo json_encode([

@@ -8,7 +8,7 @@
         </div>
     </footer>
     
-    <!-- Scripts -->
-    <script src="/public/assets/js/main.js"></script>
+    <!-- Scripts - Using absolute path from web root -->
+    <script src="/project-akhir/public/assets/js/main.js"></script>
 </body>
 </html>
