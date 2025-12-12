@@ -6,11 +6,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-include '../public/header.php';
-include '../public/navbar.php';
+include '../header.php';
+include '../navbar.php';
 
 // Fetch Rooms from DB
-require_once '../app/Config/database.php';
+require_once '../../app/Config/database.php';
 
 $user_level = $_SESSION['level'] ?? 1;
 
@@ -73,4 +73,4 @@ $conn->close();
     </div>
 </div>
 
-<?php include '../public/footer.php'; ?>
+<?php include '../footer.php'; ?>

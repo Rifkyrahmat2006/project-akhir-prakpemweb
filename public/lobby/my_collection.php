@@ -22,7 +22,12 @@
     <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <?php foreach ($my_collection as $item): ?>
-                <div class="museum-card p-4 rounded-lg group">
+                <div class="museum-card p-4 rounded-lg group cursor-pointer artifact-item"
+                     data-id="<?php echo $item['artifact_id'] ?? $item['id']; ?>" 
+                     data-name="<?php echo htmlspecialchars($item['name']); ?>"
+                     data-desc="<?php echo htmlspecialchars($item['description']); ?>"
+                     data-collected="true">
+                    
                     <div class="relative h-48 mb-4 overflow-hidden rounded bg-gray-800">
                          <!-- Fallback icon if no image -->
                         <div class="absolute inset-0 flex items-center justify-center bg-gray-900">
@@ -40,6 +45,8 @@
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+    
+    <?php include '../artifact_detail.php'; ?>
 </div>
 
-<?php include '../public/footer.php'; ?>
+<?php include '../footer.php'; ?>

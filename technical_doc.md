@@ -5,49 +5,6 @@ Tech Stack: PHP Native, MySQL, JavaScript, Tailwind CSS
 Goal: Membuat website museum interaktif di mana user bisa eksplorasi, mengumpulkan artefak, dan naik level (bukan sekadar website informasi statis).
 1. System Architecture (Arsitektur Sistem)
 Karena menggunakan PHP Native, kita akan menggunakan struktur folder modular agar kode tidak berantakan (Separation of Concerns).
-Directory Structure (Struktur Folder)
-/project-akhir
-│
-├── /app
-│   ├── /Config
-│   │   └── database.php        # Koneksi database (mysqli/PDO)
-│   ├── /Handlers               # Backend Logic (Action Scripts)
-│   ├── auth_handler.php    # Login/Register logic
-│   ├── collect.php         # Logic ambil artefak (+XP)
-│   ├── quiz_submit.php     # Logic cek jawaban kuis (+XP)
-│   └── admin_handler.php   # CRUD operations
-│
-├── /admin                  # Halaman khusus Admin (Curator)
-│   ├── index.php           # Dashboard Admin
-│   ├── artifacts.php       # List & CRUD Artefak
-│   ├── add_artifact.php    # Form tambah artefak
-│   └── users.php           # Monitor user level
-│
-├── /public               # Potongan kode reusable
-│   ├── /assets
-│   │   ├── /css
-│   │   │   └── style.css       # Main stylesheet (Dark mode, animations)
-│   │   ├── /js
-│   │   │   └── main.js         # AJAX, Modal logic, Audio control
-│   │   └── /img
-│   │       ├── /artifacts      # Gambar artefak
-│   │       ├── /rooms          # Background ruangan
-│   │       └── /ui             # Badges, icons
-│   ├── navbar.php          # Menu navigasi & Level indicator
-│   ├── header.php          # <head> section
-│   └── footer.php
-│
-├── index.php               # Landing Page (Redirect ke login jika belum auth)
-├── login.php               # Halaman Login
-├── register.php            # Halaman Daftar
-├── logout.php              # Script logout
-├── lobby.php               # Main Hall (Pilih Ruangan)
-    ├── room.php                # Template satu halaman untuk semua ruangan (Dynamic ID)
-    ├── my_collection.php       # Halaman koleksi user
-    ├── quiz.php                # Halaman kuis
-    └── artifact_detail.php     # (Bisa berupa modal di room.php atau page terpisah)
-
-
 
 2. Database Schema (Desain Database)
 Kita membutuhkan 5 tabel utama untuk menangani core mechanic (Leveling & Collecting).
@@ -138,18 +95,21 @@ Kuis:
 User jawab benar -> +XP.
 4. Page Specifications (Spesifikasi Halaman)
 Detail teknis per halaman untuk memandu coding.
+
 1. Lobby (lobby.php)
 UI: Grid layout menampilkan 4 kartu ruangan.
 Logic:
 Query data rooms dari database.
 Looping card ruangan.
 Tambahkan class CSS .locked (abu-abu/gembok) jika level user < level ruangan.
+
 2. Room Page (room.php?id=X)
 Penting: Gunakan satu file ini untuk semua ruangan. Konten berubah berdasarkan $_GET['id'].
 Features:
 Background image sesuai database ruangan.
 Artifacts: Tampilkan icon/gambar artefak secara absolute positioning (biar tersebar di layar) atau Grid.
 Cek Koleksi: Saat render artefak, cek tabel user_collections. Jika sudah punya, beri visual effect (misal: glowing atau opacity turun).
+
 3. My Collection (my_collection.php)
 UI: Seperti rak lemari (Cabinet of Curiosities).
 Logic:

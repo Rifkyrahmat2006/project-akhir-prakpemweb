@@ -113,6 +113,63 @@ if ($artifacts_check->num_rows == 0) {
     echo "Artifacts seeded.\n";
 }
 
+// Table Quizzes
+$sql = "CREATE TABLE IF NOT EXISTS quizzes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT,
+    question TEXT NOT NULL,
+    option_a VARCHAR(255),
+    option_b VARCHAR(255),
+    option_c VARCHAR(255),
+    correct_option CHAR(1),
+    xp_reward INT DEFAULT 20,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+)";
+$conn->query($sql);
+
+// Table to track answered quizzes (prevent re-answering)
+$sql = "CREATE TABLE IF NOT EXISTS user_quizzes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    quiz_id INT,
+    answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+)";
+$conn->query($sql);
+
+// Seed Quizzes
+$quiz_check = $conn->query("SELECT * FROM quizzes");
+if ($quiz_check->num_rows == 0) {
+    $rooms = $conn->query("SELECT id, name FROM rooms");
+    $room_ids = [];
+    while ($r = $rooms->fetch_assoc()) {
+        $room_ids[$r['name']] = $r['id'];
+    }
+
+    $stmt = $conn->prepare("INSERT INTO quizzes (room_id, question, option_a, option_b, option_c, correct_option, xp_reward) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+    $quizzes_data = [
+        // Medieval Hall
+        [$room_ids['Medieval Hall'], 'What period is known as the Dark Ages?', 'Renaissance', 'Medieval', 'Baroque', 'b', 25],
+        [$room_ids['Medieval Hall'], 'What type of armor did knights typically wear?', 'Leather', 'Chainmail', 'Plastic', 'b', 20],
+        // Renaissance Gallery
+        [$room_ids['Renaissance Gallery'], 'Who painted the Mona Lisa?', 'Michelangelo', 'Leonardo da Vinci', 'Raphael', 'b', 30],
+        [$room_ids['Renaissance Gallery'], 'Renaissance means...?', 'Revolution', 'Rebirth', 'Religion', 'b', 25],
+        // Baroque Palace
+        [$room_ids['Baroque Palace'], 'Baroque art originated in which country?', 'France', 'Italy', 'Spain', 'b', 30],
+        [$room_ids['Baroque Palace'], 'Which artist is famous for Baroque paintings?', 'Caravaggio', 'Picasso', 'Van Gogh', 'a', 35],
+        // Royal Archives
+        [$room_ids['Royal Archives'], 'What document limited the power of English kings?', 'Declaration of Independence', 'Magna Carta', 'Constitution', 'b', 40],
+    ];
+
+    foreach ($quizzes_data as $q) {
+        $stmt->bind_param("isssssi", $q[0], $q[1], $q[2], $q[3], $q[4], $q[5], $q[6]);
+        $stmt->execute();
+    }
+    echo "Quizzes seeded.\n";
+}
+
 echo "Setup complete!";
 $conn->close();
 ?>

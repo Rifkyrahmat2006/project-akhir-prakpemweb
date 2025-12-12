@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Validation
         if ($password !== $confirm_password) {
-            header("Location: /register.php?error=Passwords do not match");
+            header("Location: ../../public/register.php?error=Passwords do not match");
             exit();
         }
 
@@ -23,20 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->store_result();
         
         if ($stmt->num_rows > 0) {
-            header("Location: /register.php?error=Username already taken");
+            header("Location: ../../public/register.php?error=Username already taken");
             exit();
         }
         $stmt->close();
 
         // Create User
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (username, password, level, xp) VALUES (?, ?, 1, 0)");
+        $stmt = $conn->prepare("INSERT INTO users (username, password, role, level, xp) VALUES (?, ?, 'visitor', 1, 0)");
         $stmt->bind_param("ss", $username, $hashed_password);
 
         if ($stmt->execute()) {
-            header("Location: /login.php?success=1");
+            header("Location: ../../public/login.php?success=1");
         } else {
-            header("Location: /register.php?error=Registration failed");
+            header("Location: ../../public/register.php?error=Registration failed");
         }
         $stmt->close();
 
@@ -58,13 +58,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['level'] = $user['level'];
                 $_SESSION['role'] = $user['role'];
 
-                header("Location: /lobby/");
+                if ($user['role'] === 'admin') {
+                    header("Location: ../../admin/");
+                } else {
+                    header("Location: ../../public/lobby/");
+                }
                 exit();
             } else {
-                header("Location: /login.php?error=Invalid password");
+                header("Location: ../../public/login.php?error=Invalid password");
             }
         } else {
-            header("Location: /login.php?error=User not found");
+            header("Location: ../../public/login.php?error=User not found");
         }
         $stmt->close();
     }

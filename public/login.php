@@ -1,11 +1,15 @@
 <?php
 session_start();
 if (isset($_SESSION['user_id'])) {
-    header("Location: lobby/");
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+        header("Location: ../admin/");
+    } else {
+        header("Location: lobby/");
+    }
     exit();
 }
-include 'public/header.php';
-include 'public/navbar.php';
+include 'header.php';
+include 'navbar.php';
 ?>
 
 <div class="flex-grow flex items-center justify-center relative py-20 px-4">
@@ -13,8 +17,8 @@ include 'public/navbar.php';
     
     <div class="w-full max-w-md bg-dark-bg/90 p-8 border border-gold/30 shadow-2xl relative z-10 backdrop-blur-sm">
         <div class="text-center mb-8">
-            <h2 class="text-3xl text-gold mb-2">Become a Member</h2>
-            <p class="text-gray-500 text-sm italic">Begin your journey as a Visitor.</p>
+            <h2 class="text-3xl text-gold mb-2">Member Login</h2>
+            <p class="text-gray-500 text-sm italic">Welcome back, Curator.</p>
         </div>
 
         <?php if(isset($_GET['error'])): ?>
@@ -23,42 +27,41 @@ include 'public/navbar.php';
             </div>
         <?php endif; ?>
 
-        <form action="/app/Handlers/auth_handler.php" method="POST" class="space-y-6">
-            <input type="hidden" name="action" value="register">
+        <?php if(isset($_GET['success'])): ?>
+            <div class="bg-green-900/20 border border-green-500/50 text-green-300 px-4 py-2 mb-6 text-sm text-center">
+                Registration successful! Please login.
+            </div>
+        <?php endif; ?>
+
+        <form action="../app/Handlers/auth_handler.php" method="POST" class="space-y-6">
+            <input type="hidden" name="action" value="login">
             
             <div>
                 <label for="username" class="block text-gray-400 text-xs uppercase tracking-wider mb-2">Username</label>
                 <input type="text" id="username" name="username" required 
                     class="w-full bg-darker-bg border border-gray-700 focus:border-gold text-white px-4 py-3 outline-none transition duration-300"
-                    placeholder="Choose a unique username">
+                    placeholder="Enter your username">
             </div>
 
             <div>
                 <label for="password" class="block text-gray-400 text-xs uppercase tracking-wider mb-2">Password</label>
                 <input type="password" id="password" name="password" required 
                     class="w-full bg-darker-bg border border-gray-700 focus:border-gold text-white px-4 py-3 outline-none transition duration-300"
-                    placeholder="Create a password">
-            </div>
-
-            <div>
-                <label for="confirm_password" class="block text-gray-400 text-xs uppercase tracking-wider mb-2">Confirm Password</label>
-                <input type="password" id="confirm_password" name="confirm_password" required 
-                    class="w-full bg-darker-bg border border-gray-700 focus:border-gold text-white px-4 py-3 outline-none transition duration-300"
-                    placeholder="Repeat your password">
+                    placeholder="Enter your password">
             </div>
 
             <button type="submit" class="w-full btn-museum bg-gold text-darker-bg font-bold hover:bg-gold-hover mt-4">
-                Register
+                Login
             </button>
         </form>
 
         <div class="mt-6 text-center">
             <p class="text-gray-500 text-sm">
-                Already have an account? 
-                <a href="login.php" class="text-gold hover:text-gold-hover underline decoration-dotted">Login here</a>
+                Don't have a membership? 
+                <a href="register.php" class="text-gold hover:text-gold-hover underline decoration-dotted">Register here</a>
             </p>
         </div>
     </div>
 </div>
 
-<?php include 'public/footer.php'; ?>
+<?php include 'footer.php'; ?>
