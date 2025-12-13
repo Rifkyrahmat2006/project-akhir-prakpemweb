@@ -202,6 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         alert('Incorrect answer. Better luck next time!');
                     }
+                    
+                    // Check for hidden artifact unlock
+                    if (data.hidden_artifact_unlocked && data.hidden_artifact) {
+                        alert(`HIDDEN ARTIFACT UNLOCKED!\n\n"${data.hidden_artifact.name}"\n\n${data.hidden_artifact.desc}\n\n+${data.hidden_artifact.xp} Bonus XP!`);
+                    }
+                    
                     location.reload(); // Reload to update UI
                 } else {
                     alert(data.message);

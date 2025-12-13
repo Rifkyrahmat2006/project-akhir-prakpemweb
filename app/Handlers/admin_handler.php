@@ -107,6 +107,115 @@ if (isset($_REQUEST['action'])) {
             echo "Error: " . $conn->error;
         }
     }
+    
+    // Save Room Dialogs (AJAX)
+    if ($action == 'save_room_dialogs') {
+        header('Content-Type: application/json');
+        
+        $room_id = intval($_POST['room_id']);
+        $dialogs = $_POST['dialogs']; // Already JSON string from frontend
+        
+        // Validate JSON
+        $decoded = json_decode($dialogs, true);
+        if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
+            exit();
+        }
+        
+        $stmt = $conn->prepare("UPDATE rooms SET professor_dialogs = ? WHERE id = ?");
+        $stmt->bind_param("si", $dialogs, $room_id);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => $conn->error]);
+        }
+        exit();
+    }
+    
+    // Save Hidden Artifact (AJAX)
+    if ($action == 'save_hidden_artifact') {
+        header('Content-Type: application/json');
+        
+        $room_id = intval($_POST['room_id']);
+        $name = $_POST['name'];
+        $desc = $_POST['desc'];
+        $image = $_POST['image'];
+        $xp = intval($_POST['xp']);
+        
+        $stmt = $conn->prepare("UPDATE rooms SET hidden_artifact_name = ?, hidden_artifact_desc = ?, hidden_artifact_image = ?, hidden_artifact_xp = ? WHERE id = ?");
+        $stmt->bind_param("sssii", $name, $desc, $image, $xp, $room_id);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => $conn->error]);
+        }
+        exit();
+    }
+    
+    // Add Quiz
+    if ($action == 'add_quiz') {
+        $room_id = intval($_POST['room_id']);
+        $question = $_POST['question'];
+        $option_a = $_POST['option_a'];
+        $option_b = $_POST['option_b'];
+        $option_c = $_POST['option_c'];
+        $correct = strtolower($_POST['correct_option']);
+        $xp = intval($_POST['xp_reward']);
+        
+        $stmt = $conn->prepare("INSERT INTO quizzes (room_id, question, option_a, option_b, option_c, correct_option, xp_reward) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssssi", $room_id, $question, $option_a, $option_b, $option_c, $correct, $xp);
+        
+        if ($stmt->execute()) {
+            header("Location: ../../admin/quizzes.php?msg=Quiz Added Successfully");
+        } else {
+            echo "Error: " . $conn->error;
+        }
+    }
+    
+    // Edit Quiz
+    if ($action == 'edit_quiz') {
+        $id = intval($_POST['id']);
+        $room_id = intval($_POST['room_id']);
+        $question = $_POST['question'];
+        $option_a = $_POST['option_a'];
+        $option_b = $_POST['option_b'];
+        $option_c = $_POST['option_c'];
+        $correct = strtolower($_POST['correct_option']);
+        $xp = intval($_POST['xp_reward']);
+        
+        $stmt = $conn->prepare("UPDATE quizzes SET room_id=?, question=?, option_a=?, option_b=?, option_c=?, correct_option=?, xp_reward=? WHERE id=?");
+        $stmt->bind_param("isssssii", $room_id, $question, $option_a, $option_b, $option_c, $correct, $xp, $id);
+        
+        if ($stmt->execute()) {
+            header("Location: ../../admin/quizzes.php?msg=Quiz Updated Successfully");
+        } else {
+            echo "Error: " . $conn->error;
+        }
+    }
+    
+    // Delete Quiz
+    if ($action == 'delete_quiz') {
+        $id = intval($_GET['id']);
+        $room_id = isset($_GET['room_id']) ? intval($_GET['room_id']) : 0;
+        
+        // First delete user quiz answers for this quiz
+        $conn->query("DELETE FROM user_quizzes WHERE quiz_id = $id");
+        
+        $stmt = $conn->prepare("DELETE FROM quizzes WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        
+        if ($stmt->execute()) {
+            $redirect = "../../admin/quizzes.php?msg=Quiz Deleted";
+            if ($room_id > 0) {
+                $redirect .= "&room_id=" . $room_id;
+            }
+            header("Location: " . $redirect);
+        } else {
+            echo "Error: " . $conn->error;
+        }
+    }
 }
 
 $conn->close();

@@ -1,16 +1,31 @@
 <!-- Collection Modal (Hidden by default) -->
 <div id="collect-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-dark-bg border border-gold p-8 max-w-sm text-center rounded-lg transform scale-90 transition-transform duration-300" id="modal-content">
-        <h3 class="text-2xl text-gold font-serif mb-4" id="modal-title">Artifact found!</h3>
+    <div class="relative p-20 pt-28 pb-24 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[550px] min-h-[650px]" id="modal-content" style="background-image: url('/project-akhir/public/assets/img/elements/old-paper.png');">
         
-        <!-- Artifact Image -->
-        <div class="mb-4 flex justify-center">
-            <img id="modal-image" src="" alt="Artifact" class="w-32 h-32 object-cover rounded-full border-2 border-gold shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+        
+        <!-- Content -->
+        <div class="relative z-10">
+            <h3 class="text-2xl text-amber-900 font-serif font-bold mb-2 drop-shadow-sm" id="modal-title">Artifact found!</h3>
+            
+            <!-- Status label -->
+            <p class="text-sm text-amber-700 mb-4" id="modal-status"></p>
+            
+            <!-- Artifact Image with Aura -->
+            <div class="mb-4 flex justify-center">
+                <div class="relative">
+                    <!-- Outer Glow Aura -->
+                    <div class="absolute inset-[-20px] rounded-full bg-gradient-to-r from-amber-400/30 via-yellow-300/40 to-amber-400/30 blur-2xl animate-pulse"></div>
+                    <!-- Inner Glow -->
+                    <div class="absolute inset-[-10px] rounded-full bg-yellow-200/30 blur-xl"></div>
+                    <!-- Image -->
+                    <img id="modal-image" src="" alt="Artifact" class="relative z-10 w-48 h-48 object-contain drop-shadow-[0_0_30px_rgba(251,191,36,0.6)]">
+                </div>
+            </div>  
+            
+            <p class="text-amber-800 mb-6 font-bold" id="modal-desc">Description here...</p>
+            <button id="btn-collect" class="bg-amber-800 hover:bg-amber-900 text-amber-100 font-bold py-3 px-8 rounded-lg w-full mb-4 transition shadow-lg">Collect & Gain XP</button>
+            <button id="btn-close" class="text-amber-700 text-sm underline hover:text-amber-900 font-medium">Close</button>
         </div>
-        
-        <p class="text-gray-300 mb-6" id="modal-desc">Description here...</p>
-        <button id="btn-collect" class="btn-museum w-full mb-4">Collect & Gain XP</button>
-        <button id="btn-close" class="text-gray-500 text-sm underline hover:text-white">Close</button>
     </div>
 </div>
 

@@ -36,6 +36,9 @@ include '../public/header.php';
             <a href="artifacts.php" class="block px-4 py-3 rounded bg-gold/10 text-gold border-l-4 border-gold">
                 <i class="fas fa-boxes w-6"></i> Manage Artifacts
             </a>
+            <a href="quizzes.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                <i class="fas fa-question-circle w-6"></i> Manage Quizzes
+            </a>
             <a href="users.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
                 <i class="fas fa-users w-6"></i> Visitors
             </a>

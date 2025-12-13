@@ -76,11 +76,11 @@ include 'navbar.php';
         </div>
         
         <!-- Scroll Indicator -->
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+        <!-- <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
             <a href="#features" class="text-gold/50 hover:text-gold transition-colors">
                 <i class="fas fa-chevron-down text-2xl"></i>
             </a>
-        </div>
+        </div> -->
     </div>
 </div>
 

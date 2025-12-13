@@ -77,9 +77,62 @@ include '../public/header.php';
                     <h2 class="text-white font-serif text-xl border-l-4 border-gold pl-3"><?php echo $selected_room['name']; ?></h2>
                     <p class="text-gray-400 text-xs mt-1 ml-4">Drag artifacts to reposition. Click Save when done.</p>
                 </div>
-                <button id="btn-save" class="btn-museum bg-green-600 border-green-500 text-white hover:bg-green-500">
-                    <i class="fas fa-save mr-2"></i> Save Positions
-                </button>
+                <div class="flex gap-2">
+                    <button id="btn-toggle-dialogs" class="btn-museum bg-purple-600 border-purple-500 text-white hover:bg-purple-500">
+                        <i class="fas fa-comments mr-2"></i> Edit Dialogs
+                    </button>
+                    <button id="btn-save" class="btn-museum bg-green-600 border-green-500 text-white hover:bg-green-500">
+                        <i class="fas fa-save mr-2"></i> Save Positions
+                    </button>
+                </div>
+            </div>
+            
+            
+            <!-- Dialog Editor Panel (Hidden by default) -->
+            <div id="dialog-editor" class="hidden bg-gray-900 border-b border-gray-700 p-6 max-h-[70vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-gold font-serif text-lg"><i class="fas fa-book-open mr-2"></i>Professor Dialog Messages</h3>
+                        <p class="text-gray-400 text-xs mt-1">Enter one message per line. These will be shown during room intro.</p>
+                    </div>
+                    <button id="btn-save-dialogs" class="btn-museum bg-gold text-black hover:bg-gold-hover">
+                        <i class="fas fa-save mr-2"></i> Save Dialogs
+                    </button>
+                </div>
+                <textarea id="dialogs-textarea" rows="8" class="w-full bg-black border border-gray-700 text-white p-4 rounded font-mono text-sm focus:border-gold outline-none" placeholder="Welcome, young explorer! I am Professor Aldric.
+You have entered the Room Name. A magnificent place, isn't it?
+Room description goes here.
+Look for the glowing markers to find hidden artifacts.
+Collect them all to gain knowledge and experience. Good luck!"><?php 
+                    $dialogs = json_decode($selected_room['professor_dialogs'] ?? '[]', true);
+                    echo htmlspecialchars(implode("\n", $dialogs ?: []));
+                ?></textarea>
+                
+                <!-- Hidden Artifact Section -->
+                <div class="mt-6 pt-6 border-t border-gray-700">
+                    <h3 class="text-purple-400 font-serif text-lg mb-4"><i class="fas fa-gem mr-2"></i>Hidden Artifact (Unlocks with 50% Quiz Score)</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-gray-400 text-xs mb-1 block">Artifact Name</label>
+                            <input type="text" id="hidden-name" value="<?php echo htmlspecialchars($selected_room['hidden_artifact_name'] ?? ''); ?>" class="w-full bg-black border border-gray-700 text-white p-2 rounded focus:border-gold outline-none" placeholder="Mystery Artifact">
+                        </div>
+                        <div>
+                            <label class="text-gray-400 text-xs mb-1 block">XP Reward</label>
+                            <input type="number" id="hidden-xp" value="<?php echo intval($selected_room['hidden_artifact_xp'] ?? 100); ?>" class="w-full bg-black border border-gray-700 text-white p-2 rounded focus:border-gold outline-none" placeholder="100">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="text-gray-400 text-xs mb-1 block">Description</label>
+                        <textarea id="hidden-desc" rows="2" class="w-full bg-black border border-gray-700 text-white p-2 rounded focus:border-gold outline-none" placeholder="A mysterious artifact..."><?php echo htmlspecialchars($selected_room['hidden_artifact_desc'] ?? ''); ?></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="text-gray-400 text-xs mb-1 block">Image URL (optional)</label>
+                        <input type="text" id="hidden-image" value="<?php echo htmlspecialchars($selected_room['hidden_artifact_image'] ?? ''); ?>" class="w-full bg-black border border-gray-700 text-white p-2 rounded focus:border-gold outline-none" placeholder="https://...">
+                    </div>
+                    <button id="btn-save-hidden" class="mt-4 btn-museum bg-purple-600 border-purple-500 text-white hover:bg-purple-500">
+                        <i class="fas fa-save mr-2"></i> Save Hidden Artifact
+                    </button>
+                </div>
             </div>
             
             <!-- Editor Canvas -->
@@ -269,5 +322,103 @@ document.addEventListener('DOMContentLoaded', () => {
             saveBtn.disabled = false;
         });
     });
+    
+    // Dialog Editor Toggle
+    const toggleDialogsBtn = document.getElementById('btn-toggle-dialogs');
+    const dialogEditor = document.getElementById('dialog-editor');
+    const saveDialogsBtn = document.getElementById('btn-save-dialogs');
+    const dialogsTextarea = document.getElementById('dialogs-textarea');
+    
+    if (toggleDialogsBtn && dialogEditor) {
+        toggleDialogsBtn.addEventListener('click', () => {
+            dialogEditor.classList.toggle('hidden');
+            if (dialogEditor.classList.contains('hidden')) {
+                toggleDialogsBtn.innerHTML = '<i class="fas fa-comments mr-2"></i> Edit Dialogs';
+            } else {
+                toggleDialogsBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Close Dialogs';
+            }
+        });
+    }
+    
+    // Save Dialogs
+    if (saveDialogsBtn && dialogsTextarea) {
+        saveDialogsBtn.addEventListener('click', () => {
+            saveDialogsBtn.disabled = true;
+            saveDialogsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+            
+            const lines = dialogsTextarea.value.split('\n').filter(line => line.trim() !== '');
+            const roomId = <?php echo $selected_room ? $selected_room['id'] : 0; ?>;
+            
+            fetch('../app/Handlers/admin_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=save_room_dialogs&room_id=${roomId}&dialogs=${encodeURIComponent(JSON.stringify(lines))}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    saveDialogsBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+                    setTimeout(() => {
+                        saveDialogsBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Dialogs';
+                        saveDialogsBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                    saveDialogsBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Request failed');
+                saveDialogsBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Save Hidden Artifact
+    const saveHiddenBtn = document.getElementById('btn-save-hidden');
+    if (saveHiddenBtn) {
+        saveHiddenBtn.addEventListener('click', () => {
+            saveHiddenBtn.disabled = true;
+            saveHiddenBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+            
+            const data = {
+                action: 'save_hidden_artifact',
+                room_id: <?php echo $selected_room ? $selected_room['id'] : 0; ?>,
+                name: document.getElementById('hidden-name').value,
+                desc: document.getElementById('hidden-desc').value,
+                image: document.getElementById('hidden-image').value,
+                xp: document.getElementById('hidden-xp').value
+            };
+            
+            fetch('../app/Handlers/admin_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&')
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    saveHiddenBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+                    setTimeout(() => {
+                        saveHiddenBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Hidden Artifact';
+                        saveHiddenBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Error: ' + (result.message || 'Unknown error'));
+                    saveHiddenBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Request failed');
+                saveHiddenBtn.disabled = false;
+            });
+        });
+    }
 });
 </script>

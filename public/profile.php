@@ -83,9 +83,12 @@ include 'header.php';
 include 'navbar.php';
 ?>
 
-<div class="flex-grow container mx-auto px-4 py-8 page-fade-in">
+<div class="min-h-screen" style="background: linear-gradient(135deg, #d4c4a8 0%, #c4b393 25%, #b8a67e 50%, #c4b393 75%, #d4c4a8 100%); background-image: url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\"%3E%3Crect fill=\"%23d4c4a8\" width=\"100\" height=\"100\"/%3E%3Cg fill-opacity=\"0.1\"%3E%3Ccircle fill=\"%23000\" cx=\"50\" cy=\"50\" r=\"1\"/%3E%3Ccircle fill=\"%23000\" cx=\"20\" cy=\"20\" r=\"0.5\"/%3E%3Ccircle fill=\"%23000\" cx=\"80\" cy=\"80\" r=\"0.8\"/%3E%3Ccircle fill=\"%23000\" cx=\"30\" cy=\"70\" r=\"0.3\"/%3E%3Ccircle fill=\"%23000\" cx=\"70\" cy=\"30\" r=\"0.6\"/%3E%3C/g%3E%3C/svg%3E');">
+
+<div class="container mx-auto px-4 py-8 page-fade-in">
     <!-- Profile Header -->
-    <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 mb-8 border border-gold/20">
+    <div class="bg-gradient-to-r from-amber-900/80 to-amber-800/80 rounded-xl p-8 mb-8 border-2 border-amber-700 shadow-2xl" style="box-shadow: inset 0 0 50px rgba(0,0,0,0.3);">
+
         <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
             <!-- Avatar -->
             <div class="relative">
@@ -141,8 +144,8 @@ include 'navbar.php';
     
     <div class="grid md:grid-cols-2 gap-8">
         <!-- Progress Stats -->
-        <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h2 class="text-xl font-serif text-gold mb-6 flex items-center gap-2">
+        <div class="bg-amber-800/60 rounded-xl p-6 border-2 border-amber-700 shadow-lg" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.2);">
+            <h2 class="text-xl font-serif text-amber-200 mb-6 flex items-center gap-2">
                 <i class="fas fa-chart-line"></i> Progress
             </h2>
             
@@ -184,8 +187,8 @@ include 'navbar.php';
         </div>
         
         <!-- Achievements -->
-        <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h2 class="text-xl font-serif text-gold mb-6 flex items-center gap-2">
+        <div class="bg-amber-800/60 rounded-xl p-6 border-2 border-amber-700 shadow-lg" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.2);">
+            <h2 class="text-xl font-serif text-amber-200 mb-6 flex items-center gap-2">
                 <i class="fas fa-trophy"></i> Achievements
             </h2>
             
@@ -272,6 +275,7 @@ include 'navbar.php';
             <i class="fas fa-gem mr-2"></i> My Collection
         </a>
     </div>
+</div>
 </div>
 
 <?php 

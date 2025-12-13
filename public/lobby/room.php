@@ -79,6 +79,26 @@ while($row = $result->fetch_assoc()) {
 }
 
 $total_artifacts = count($artifacts);
+$all_collected = ($collected_count > 0 && $collected_count >= $total_artifacts);
+
+// Check if hidden artifact is unlocked
+$hidden_artifact_unlocked = false;
+$hidden_artifact = null;
+$stmt = $conn->prepare("SELECT id FROM user_hidden_artifacts WHERE user_id = ? AND room_id = ?");
+$stmt->bind_param("ii", $user_id, $room_id);
+$stmt->execute();
+$hidden_artifact_unlocked = $stmt->get_result()->num_rows > 0;
+
+// Get hidden artifact info if room has one
+if ($room['hidden_artifact_name']) {
+    $hidden_artifact = [
+        'name' => $room['hidden_artifact_name'],
+        'desc' => $room['hidden_artifact_desc'],
+        'image' => $room['hidden_artifact_image'],
+        'xp' => $room['hidden_artifact_xp'],
+        'unlocked' => $hidden_artifact_unlocked
+    ];
+}
 
 // Clean description for JS usage
 $desc = addslashes($room['description']);
@@ -133,15 +153,16 @@ include '../navbar.php';
 </button>
 
 <div class="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black">
-    <!-- Back Button -->
-    <a href="index.php" class="absolute top-4 left-4 z-30 btn-museum bg-black/50 text-white border-white/30 hover:bg-gold hover:text-black">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Lobby
-    </a>
-    
-    <!-- Quiz Button -->
-    <a href="quiz.php?room_id=<?php echo $room_id; ?>" class="absolute top-4 left-48 z-30 btn-museum bg-black/50 text-gold border-gold/50 hover:bg-gold hover:text-black">
-        <i class="fas fa-question-circle mr-2"></i> Take Quiz
-    </a>
+    <!-- Navigation Buttons -->
+    <div class="absolute top-4 left-4 z-30 flex gap-3">
+        <a href="index.php" class="btn-museum bg-black/50 text-white border-white/30 hover:bg-gold hover:text-black">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Lobby
+        </a>
+        
+        <a href="quiz.php?room_id=<?php echo $room_id; ?>" class="btn-museum bg-black/50 text-gold border-gold/50 hover:bg-gold hover:text-black">
+            <i class="fas fa-question-circle mr-2"></i> Take Quiz
+        </a>
+    </div>
     
     <!-- Room Progress -->
     <div class="absolute top-4 right-20 z-30 flex items-center gap-2 bg-black/50 border border-gray-700 rounded-full px-4 py-2">
@@ -173,10 +194,10 @@ include '../navbar.php';
                 <div class="relative w-12 h-12 flex items-center justify-center transition duration-500 ease-out">
                     
                     <!-- 1. Outer Diffuse Glow - Large pulsing aurora -->
-                    <div class="absolute inset-[-5px] rounded-full <?php echo $is_collected ? 'bg-green-500/20' : 'bg-gold/20'; ?> blur-xl animate-pulse group-hover:opacity-100 group-hover:bg-gold/60 group-hover:blur-2xl transition duration-500"></div>
+                    <div class="absolute inset-[-5px] rounded-full bg-gold/20 blur-xl animate-pulse group-hover:opacity-100 group-hover:bg-gold/60 group-hover:blur-2xl transition duration-500"></div>
                     
                     <!-- 2. Inner Focused Glow - Stronger light -->
-                    <div class="absolute inset-1 rounded-full <?php echo $is_collected ? 'bg-green-400/40' : 'bg-gold/40'; ?> blur-md group-hover:bg-gold/80 group-hover:bg-opacity-100 transition duration-300"></div>
+                    <div class="absolute inset-1 rounded-full bg-gold/40 blur-md group-hover:bg-gold/80 group-hover:bg-opacity-100 transition duration-300"></div>
                     
                     <!-- 3. Core Light - The bright source -->
                     <div class="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:w-2 group-hover:h-2 group-hover:shadow-[0_0_30px_rgba(255,255,255,1)] transition-all duration-300"></div>
@@ -188,6 +209,56 @@ include '../navbar.php';
     </div>
 
     <?php include '../artifact_detail.php'; ?>
+    
+    <!-- Congratulation Dialog (Shows when all artifacts collected) - Same structure as intro -->
+    <?php if ($all_collected): ?>
+    <div id="congrats-modal" class="fixed inset-0 z-[100] hidden flex flex-col justify-end bg-black/90">
+        <!-- Professor Container - Same as intro -->
+        <div id="congrats-professor-container" class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-30 pointer-events-none transition-all duration-700 ease-out flex items-end">
+            <img src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+        </div>
+        
+        <!-- Dialogue Area - Bottom (Same as intro) -->
+        <div class="relative w-full bg-black/95 border-t-2 border-gold z-20 p-6 pb-8 md:pl-[350px]">
+            <!-- Guide Name Tag -->
+            <div class="absolute -top-8 left-6 md:left-[350px] bg-gold text-black px-4 py-1 font-serif font-bold text-lg rounded-t shadow-[0_0_15px_rgba(197,160,89,0.5)]">
+                Professor Aldric
+            </div>
+            
+            <!-- Typewriter Text Container -->
+            <div class="min-h-[80px] font-serif text-lg md:text-xl text-gray-200 leading-relaxed drop-shadow-md relative">
+                <span id="congrats-typewriter"></span><span class="animate-pulse text-gold">|</span>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex justify-between items-center mt-6 border-t border-gray-800 pt-4">
+                <div class="flex gap-2" id="congrats-dots">
+                    <!-- Dots generated by JS -->
+                </div>
+                
+                <!-- Next Button -->
+                <button id="congrats-next" class="btn-museum bg-gold/10 hover:bg-gold text-gold hover:text-black">
+                    Next <i class="fas fa-chevron-right ml-2"></i>
+                </button>
+                
+                <!-- Action Buttons (hidden initially, shown at last message) -->
+                <div id="congrats-actions" class="hidden gap-4">
+                    <a href="quiz.php?room_id=<?php echo $room_id; ?>" class="btn-museum bg-gold hover:bg-gold-hover text-black">
+                        <i class="fas fa-check mr-2"></i> Yes, let's go!
+                    </a>
+                    <button id="congrats-no" class="btn-museum bg-transparent border-gray-500 text-gray-400 hover:text-white hover:border-white">
+                        <i class="fas fa-times mr-2"></i> Maybe later
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Skip Button -->
+            <button id="congrats-skip" class="absolute top-4 right-4 text-gray-500 hover:text-white text-sm uppercase tracking-wider">
+                Skip <i class="fas fa-forward ml-1"></i>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script>
@@ -223,14 +294,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Dialog Data
-    const messages = [
+    // Dialog Data - Use database dialogs if available, otherwise fallback to defaults
+    <?php 
+    $db_dialogs = json_decode($room['professor_dialogs'] ?? '[]', true);
+    $default_dialogs = [
         "Welcome, young explorer! I am Professor Aldric.",
-        "You have entered the <?php echo $room['name']; ?>. A magnificent place, isn't it?",
-        "<?php echo $desc; ?>",
-        "There are <?php echo $total_artifacts; ?> artifacts hidden here. Look for the glowing markers.",
+        "You have entered the " . addslashes($room['name']) . ". A magnificent place, isn't it?",
+        addslashes($room['description']),
+        "There are " . $total_artifacts . " artifacts hidden here. Look for the glowing markers.",
         "Collect them all to gain knowledge and experience. Good luck!"
     ];
+    $final_dialogs = !empty($db_dialogs) ? $db_dialogs : $default_dialogs;
+    ?>
+    const messages = <?php echo json_encode($final_dialogs); ?>;
     
     let currentStep = 0;
     let isTyping = false;
@@ -337,6 +413,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSkip.addEventListener('click', closeGuide);
     btnInfo.addEventListener('click', openGuide);
     
+    // Enter key to advance dialog
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !guideModal.classList.contains('hidden')) {
+            e.preventDefault();
+            nextStep();
+        }
+    });
+    
     // Start if first visit or manually opened
     if (!guideModal.classList.contains('hidden')) {
         showMessage(0);
@@ -354,6 +438,135 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     `;
     document.head.appendChild(style);
+    
+    // Congrats Dialog Logic (Typewriter style)
+    const congratsModal = document.getElementById('congrats-modal');
+    const congratsTypewriter = document.getElementById('congrats-typewriter');
+    const congratsDots = document.getElementById('congrats-dots');
+    const congratsNext = document.getElementById('congrats-next');
+    const congratsActions = document.getElementById('congrats-actions');
+    const congratsNo = document.getElementById('congrats-no');
+    
+    // Check if should show congrats
+    const allCollected = <?php echo $all_collected ? 'true' : 'false'; ?>;
+    const congratsShown = sessionStorage.getItem('congrats_shown_room_<?php echo $room_id; ?>');
+    
+    // Congrats messages
+    const congratsMessages = [
+        "🎉 Incredible work, young explorer!",
+        "You have successfully collected all <?php echo $total_artifacts; ?> artifacts in the <?php echo addslashes($room['name']); ?>!",
+        "But wait... I sense something else hidden in this chamber...",
+        "There is a secret artifact here, but its name remains unknown to me.",
+        "To reveal its identity, you must prove your knowledge by completing the quiz.",
+        "Are you ready to take the challenge?"
+    ];
+    
+    let congratsStep = 0;
+    let congratsTyping = false;
+    let congratsTypeInterval;
+    
+    // Create dots
+    if (congratsDots) {
+        congratsMessages.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = `w-2 h-2 rounded-full ${index === 0 ? 'bg-gold' : 'bg-gray-600'} transition-colors duration-300`;
+            congratsDots.appendChild(dot);
+        });
+    }
+    
+    const congratsDotElements = congratsDots ? congratsDots.querySelectorAll('div') : [];
+    
+    function updateCongratsDots(index) {
+        congratsDotElements.forEach((dot, i) => {
+            dot.className = `w-2 h-2 rounded-full ${i <= index ? 'bg-gold' : 'bg-gray-600'} transition-colors duration-300`;
+        });
+    }
+    
+    function typeCongratsMessage(text, callback) {
+        congratsTyping = true;
+        let i = 0;
+        congratsTypewriter.innerHTML = '';
+        
+        congratsTypeInterval = setInterval(() => {
+            if (i < text.length) {
+                congratsTypewriter.innerHTML += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(congratsTypeInterval);
+                congratsTyping = false;
+                if (callback) callback();
+            }
+        }, 30);
+    }
+    
+    function showCongratsMessage(index) {
+        if (index >= congratsMessages.length) {
+            // Show Yes/No buttons on last message
+            congratsNext.classList.add('hidden');
+            congratsActions.classList.remove('hidden');
+            return;
+        }
+        
+        congratsStep = index;
+        updateCongratsDots(index);
+        typeCongratsMessage(congratsMessages[index]);
+    }
+    
+    function nextCongratsStep() {
+        if (congratsTyping) {
+            clearInterval(congratsTypeInterval);
+            congratsTypewriter.innerHTML = congratsMessages[congratsStep];
+            congratsTyping = false;
+        } else {
+            showCongratsMessage(congratsStep + 1);
+        }
+    }
+    
+    function showCongratsModal() {
+        if (congratsModal && !congratsShown) {
+            congratsModal.classList.remove('hidden');
+            setTimeout(() => {
+                congratsModal.classList.remove('opacity-0');
+                showCongratsMessage(0);
+            }, 100);
+            sessionStorage.setItem('congrats_shown_room_<?php echo $room_id; ?>', 'true');
+        }
+    }
+    
+    function hideCongratsModal() {
+        if (congratsModal) {
+            congratsModal.classList.add('hidden');
+        }
+    }
+    
+    if (congratsNext) {
+        congratsNext.addEventListener('click', nextCongratsStep);
+    }
+    
+    if (congratsNo) {
+        congratsNo.addEventListener('click', hideCongratsModal);
+    }
+    
+    // Skip button
+    const congratsSkip = document.getElementById('congrats-skip');
+    if (congratsSkip) {
+        congratsSkip.addEventListener('click', hideCongratsModal);
+    }
+    // Show congrats modal after guide is closed (if all collected)
+    if (allCollected && !congratsShown) {
+        // If guide is shown, wait for it to close
+        if (guideModal && !guideModal.classList.contains('hidden')) {
+            // Modify closeGuide to also trigger congrats
+            const originalCloseGuide = closeGuide;
+            closeGuide = function() {
+                originalCloseGuide();
+                setTimeout(showCongratsModal, 500);
+            };
+        } else {
+            // Guide already closed, show congrats after short delay
+            setTimeout(showCongratsModal, 1000);
+        }
+    }
 });
 </script>
 

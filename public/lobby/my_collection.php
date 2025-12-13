@@ -5,37 +5,19 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Database MUST be loaded before includes
+// Database and Models
 require_once '../../app/Config/database.php';
+require_once '../../app/Models/User.php';
+require_once '../../app/Models/Artifact.php';
 
 $user_id = $_SESSION['user_id'];
 $user_level = $_SESSION['level'] ?? 1;
 
-// Rank names based on level
-$ranks = [
-    1 => 'Visitor',
-    2 => 'Explorer', 
-    3 => 'Historian',
-    4 => 'Royal Curator'
-];
-$rank_name = $ranks[$user_level] ?? 'Visitor';
+// Get rank name using Model
+$rank_name = User::getRankName($user_level);
 
-// Fetch user's collected artifacts
-$sql = "SELECT a.*, uc.collected_at 
-        FROM user_collections uc 
-        JOIN artifacts a ON uc.artifact_id = a.id 
-        WHERE uc.user_id = ? 
-        ORDER BY uc.collected_at DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$my_collection = [];
-while($row = $result->fetch_assoc()) {
-    $my_collection[] = $row;
-}
-
+// Fetch user's collected artifacts using Model
+$my_collection = Artifact::getUserCollection($conn, $user_id);
 $collection_count = count($my_collection);
 
 // Determine collection badge
@@ -47,6 +29,10 @@ if ($collection_count >= 20) {
 } elseif ($collection_count >= 5) {
     $badge = ['name' => 'Bronze Collector', 'class' => 'badge-bronze', 'icon' => 'fa-award'];
 }
+
+// Fetch user's unlocked hidden artifacts using Model
+$hidden_artifacts = Artifact::getUserHiddenArtifacts($conn, $user_id);
+$hidden_count = count($hidden_artifacts);
 
 include '../header.php';
 include '../navbar.php';
@@ -138,6 +124,33 @@ include '../navbar.php';
     <?php endif; ?>
     
     <?php include '../artifact_detail.php'; ?>
+    
+    <!-- Hidden Artifacts Section -->
+    <?php if (!empty($hidden_artifacts)): ?>
+    <div class="mt-12">
+        <h2 class="text-2xl text-purple-400 font-serif mb-6"><i class="fas fa-gem mr-2"></i>Hidden Artifacts Unlocked</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <?php foreach ($hidden_artifacts as $hidden): ?>
+                <div class="p-4 rounded-lg bg-gradient-to-br from-purple-900/30 to-purple-950/50 border border-purple-500/30 group">
+                    <div class="relative h-48 mb-4 overflow-hidden rounded bg-gray-800 flex items-center justify-center">
+                        <?php if ($hidden['hidden_artifact_image']): ?>
+                            <img src="<?php echo htmlspecialchars($hidden['hidden_artifact_image']); ?>" alt="Hidden Artifact" class="w-full h-full object-cover">
+                        <?php else: ?>
+                            <i class="fas fa-gem text-6xl text-purple-500/50"></i>
+                        <?php endif; ?>
+                        <div class="absolute top-2 right-2 w-8 h-8 rounded-full bg-purple-500/80 flex items-center justify-center">
+                            <i class="fas fa-star text-white text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-lg text-purple-300 font-serif mb-1"><?php echo htmlspecialchars($hidden['hidden_artifact_name']); ?></h3>
+                    <p class="text-gray-500 text-xs mb-2 italic">From: <?php echo htmlspecialchars($hidden['room_name']); ?></p>
+                    <p class="text-gray-400 text-sm line-clamp-2"><?php echo htmlspecialchars($hidden['hidden_artifact_desc']); ?></p>
+                    <p class="text-purple-400 text-xs mt-2"><i class="fas fa-star mr-1"></i>+<?php echo $hidden['hidden_artifact_xp']; ?> XP Bonus</p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php 
