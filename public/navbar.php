@@ -34,28 +34,29 @@ if ($level < 4) {
     $xp_progress = 100; // Max level
 }
 $rank_name = $rank_names[$level] ?? 'Visitor';
+$base_path = '/project-akhir/public';
 ?>
 
 <nav class="bg-dark-bg border-b border-gray-800 sticky top-0 z-50">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-16">
             <!-- Brand -->
-            <a href="index.php" class="flex items-center space-x-2">
-                <i class="fas fa-landmark text-gold text-2xl"></i>
+            <a href="<?php echo $base_path; ?>/index.php" class="flex items-center space-x-2">
+                <img src="<?php echo $base_path; ?>/icon.png" alt="Museum Logo" class="h-8 w-8">
                 <span class="font-serif text-xl font-bold text-white tracking-wider">VESPERA<span class="text-gold">VELORIA</span></span>
             </a>
 
             <!-- Navigation Links -->
             <div class="hidden md:flex items-center space-x-6">
                 <?php if ($isLoggedIn): ?>
-                    <a href="lobby/" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Lobby</a>
-                    <a href="lobby/my_collection.php" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Collection</a>
+                    <a href="<?php echo $base_path; ?>/lobby/" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Lobby</a>
+                    <a href="<?php echo $base_path; ?>/lobby/my_collection.php" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Collection</a>
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                        <a href="../admin/" class="text-red-400 hover:text-red-300 transition duration-300 font-sans uppercase text-sm tracking-wide font-bold">Admin Panel</a>
+                        <a href="<?php echo $base_path; ?>/../admin/" class="text-red-400 hover:text-red-300 transition duration-300 font-sans uppercase text-sm tracking-wide font-bold">Admin Panel</a>
                     <?php endif; ?>
                     
                     <!-- User Info with XP Bar -->
-                    <div class="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-700">
+                    <a href="<?php echo $base_path; ?>/profile.php" class="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-700 hover:opacity-80 transition">
                         <div class="text-right">
                             <div class="flex items-center gap-2">
                                 <span class="text-gold font-serif text-sm"><?php echo htmlspecialchars($username); ?></span>
@@ -75,14 +76,14 @@ $rank_name = $rank_names[$level] ?? 'Visitor';
                         <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold flex items-center justify-center text-gold">
                             <i class="fas fa-crown text-sm"></i>
                         </div>
-                    </div>
+                    </a>
                     
-                    <a href="logout.php" class="ml-2 text-gray-400 hover:text-red-400 text-sm" title="Logout">
+                    <a href="<?php echo $base_path; ?>/logout.php" class="ml-2 text-gray-400 hover:text-red-400 text-sm" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 <?php else: ?>
-                    <a href="login.php" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Login</a>
-                    <a href="register.php" class="btn-museum text-xs">Register</a>
+                    <a href="<?php echo $base_path; ?>/login.php" class="text-gray-300 hover:text-gold transition duration-300 font-sans uppercase text-sm tracking-wide">Login</a>
+                    <a href="<?php echo $base_path; ?>/register.php" class="btn-museum text-xs">Register</a>
                 <?php endif; ?>
             </div>
 
@@ -108,7 +109,7 @@ $rank_name = $rank_names[$level] ?? 'Visitor';
         
         <?php if ($isLoggedIn): ?>
             <!-- User Info Mobile -->
-            <div class="mb-8 p-4 bg-gray-900 rounded-lg border border-gold/20">
+            <a href="<?php echo $base_path; ?>/profile.php" class="mb-8 p-4 bg-gray-900 rounded-lg border border-gold/20 block hover:bg-gray-800 transition">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="h-12 w-12 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold flex items-center justify-center text-gold">
                         <i class="fas fa-crown"></i>
@@ -122,31 +123,34 @@ $rank_name = $rank_names[$level] ?? 'Visitor';
                     <div class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%"></div>
                 </div>
                 <div class="text-xs text-gray-500 mt-1"><?php echo number_format($current_xp); ?> XP</div>
-            </div>
+            </a>
             
             <nav class="flex flex-col space-y-4">
-                <a href="lobby/" class="text-gray-300 hover:text-gold text-lg py-2 border-b border-gray-800">
+                <a href="<?php echo $base_path; ?>/lobby/" class="text-gray-300 hover:text-gold text-lg py-2 border-b border-gray-800">
                     <i class="fas fa-door-open mr-3 w-6"></i> Lobby
                 </a>
-                <a href="lobby/my_collection.php" class="text-gray-300 hover:text-gold text-lg py-2 border-b border-gray-800">
+                <a href="<?php echo $base_path; ?>/lobby/my_collection.php" class="text-gray-300 hover:text-gold text-lg py-2 border-b border-gray-800">
                     <i class="fas fa-gem mr-3 w-6"></i> My Collection
                 </a>
+                <a href="<?php echo $base_path; ?>/profile.php" class="text-gray-300 hover:text-gold text-lg py-2 border-b border-gray-800">
+                    <i class="fas fa-user mr-3 w-6"></i> Profile
+                </a>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                <a href="../admin/" class="text-red-400 hover:text-red-300 text-lg py-2 border-b border-gray-800">
+                <a href="<?php echo $base_path; ?>/../admin/" class="text-red-400 hover:text-red-300 text-lg py-2 border-b border-gray-800">
                     <i class="fas fa-cog mr-3 w-6"></i> Admin Panel
                 </a>
                 <?php endif; ?>
             </nav>
             
             <div class="mt-auto">
-                <a href="logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-900/20 text-red-400 rounded-lg">
+                <a href="<?php echo $base_path; ?>/logout.php" class="flex items-center justify-center gap-2 w-full py-3 bg-red-900/20 text-red-400 rounded-lg hover:bg-red-900/40 transition">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
         <?php else: ?>
             <nav class="flex flex-col space-y-4">
-                <a href="login.php" class="btn-museum text-center py-3">Login</a>
-                <a href="register.php" class="btn-museum bg-gold text-black text-center py-3">Register</a>
+                <a href="<?php echo $base_path; ?>/login.php" class="btn-museum text-center py-3">Login</a>
+                <a href="<?php echo $base_path; ?>/register.php" class="btn-museum bg-gold text-black text-center py-3">Register</a>
             </nav>
         <?php endif; ?>
     </div>
