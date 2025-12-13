@@ -41,6 +41,9 @@ include '../public/header.php';
             <a href="users.php" class="block px-4 py-3 rounded bg-gold/10 text-gold border-l-4 border-gold">
                 <i class="fas fa-users w-6"></i> Visitors
             </a>
+            <a href="room_editor.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                <i class="fas fa-map w-6"></i> Room Editor
+            </a>
         </nav>
 
         <div class="p-4 border-t border-gold/20">

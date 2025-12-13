@@ -41,8 +41,8 @@ $base_path = '/project-akhir/public';
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-16">
             <!-- Brand -->
-            <a href="<?php echo $base_path; ?>/index.php" class="flex items-center space-x-2">
-                <img src="<?php echo $base_path; ?>/icon.png" alt="Museum Logo" class="h-8 w-8">
+            <a href="<?php echo $base_path; ?>/index.php" class="flex items-center space-x-4">
+                <img src="<?php echo $base_path; ?>/icon.png" alt="Museum Logo" class="h-12 w-12 mt-[-4px]">
                 <span class="font-serif text-xl font-bold text-white tracking-wider">VESPERA<span class="text-gold">VELORIA</span></span>
             </a>
 

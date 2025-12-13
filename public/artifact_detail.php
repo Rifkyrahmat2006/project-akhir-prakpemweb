@@ -2,6 +2,12 @@
 <div id="collect-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
     <div class="bg-dark-bg border border-gold p-8 max-w-sm text-center rounded-lg transform scale-90 transition-transform duration-300" id="modal-content">
         <h3 class="text-2xl text-gold font-serif mb-4" id="modal-title">Artifact found!</h3>
+        
+        <!-- Artifact Image -->
+        <div class="mb-4 flex justify-center">
+            <img id="modal-image" src="" alt="Artifact" class="w-32 h-32 object-cover rounded-full border-2 border-gold shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+        </div>
+        
         <p class="text-gray-300 mb-6" id="modal-desc">Description here...</p>
         <button id="btn-collect" class="btn-museum w-full mb-4">Collect & Gain XP</button>
         <button id="btn-close" class="text-gray-500 text-sm underline hover:text-white">Close</button>
@@ -16,6 +22,7 @@
         const modal = document.getElementById('collect-modal');
         const modalContent = document.getElementById('modal-content');
         const modalTitle = document.getElementById('modal-title');
+        const modalImage = document.getElementById('modal-image');
         const modalDesc = document.getElementById('modal-desc');
         const btnCollect = document.getElementById('btn-collect');
         const btnClose = document.getElementById('btn-close');
@@ -27,11 +34,20 @@
                 const id = art.dataset.id;
                 const name = art.dataset.name;
                 const desc = art.dataset.desc;
+                const image = art.dataset.image; // Get Data Image
                 const collected = art.dataset.collected === 'true';
 
                 currentArtifactId = id;
                 modalTitle.innerText = name;
                 modalDesc.innerText = desc;
+                
+                // Set Image
+                if (image) {
+                    modalImage.src = image;
+                    modalImage.classList.remove('hidden');
+                } else {
+                    modalImage.classList.add('hidden');
+                }
 
                 if (collected) {
                     btnCollect.style.display = 'none';
