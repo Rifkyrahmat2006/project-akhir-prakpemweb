@@ -5,31 +5,23 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Database and Models
 require_once '../app/Config/database.php';
+require_once '../app/Models/User.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch user data from database
-$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
+// Fetch user data using Model
+$user = User::findById($conn, $user_id);
 
 // Update session with latest data
 $_SESSION['xp'] = $user['xp'];
 $_SESSION['level'] = $user['level'];
 
-// Fetch collection stats
-$collection_stmt = $conn->prepare("SELECT COUNT(*) as count FROM user_collections WHERE user_id = ?");
-$collection_stmt->bind_param("i", $user_id);
-$collection_stmt->execute();
-$collection_count = $collection_stmt->get_result()->fetch_assoc()['count'];
-
-// Fetch quiz stats
-$quiz_stmt = $conn->prepare("SELECT COUNT(*) as count FROM user_quizzes WHERE user_id = ?");
-$quiz_stmt->bind_param("i", $user_id);
-$quiz_stmt->execute();
-$quiz_count = $quiz_stmt->get_result()->fetch_assoc()['count'];
+// Fetch stats using Model
+$stats = User::getStats($conn, $user_id);
+$collection_count = $stats['artifacts_collected'];
+$quiz_count = $stats['quizzes_completed'];
 
 // Total artifacts in museum
 $total_artifacts = $conn->query("SELECT COUNT(*) as count FROM artifacts")->fetch_assoc()['count'];
@@ -37,37 +29,21 @@ $total_artifacts = $conn->query("SELECT COUNT(*) as count FROM artifacts")->fetc
 // Total quizzes
 $total_quizzes = $conn->query("SELECT COUNT(*) as count FROM quizzes")->fetch_assoc()['count'];
 
-// XP thresholds
-$xp_thresholds = [
-    1 => ['min' => 0, 'max' => 100],
-    2 => ['min' => 101, 'max' => 300],
-    3 => ['min' => 301, 'max' => 600],
-    4 => ['min' => 601, 'max' => 1000]
-];
+// Get XP and level data using Model
+$xp_data = User::getXpAndLevel($conn, $user_id);
+$current_level = $user['level'];
+$current_xp = $user['xp'];
+$xp_progress = $xp_data['progress'];
+$xp_needed = $xp_data['xp_for_next_level'] - $current_xp;
 
+// Get rank info
 $ranks = [
     1 => ['name' => 'Visitor', 'icon' => 'fa-user', 'color' => 'text-gray-400'],
     2 => ['name' => 'Explorer', 'icon' => 'fa-compass', 'color' => 'text-blue-400'],
     3 => ['name' => 'Historian', 'icon' => 'fa-book', 'color' => 'text-purple-400'],
     4 => ['name' => 'Royal Curator', 'icon' => 'fa-crown', 'color' => 'text-gold']
 ];
-
-$current_level = $user['level'];
-$current_xp = $user['xp'];
-$current_threshold = $xp_thresholds[$current_level] ?? $xp_thresholds[1];
 $rank = $ranks[$current_level] ?? $ranks[1];
-
-// Calculate XP progress
-$xp_progress = 0;
-$xp_needed = 0;
-if ($current_level < 4) {
-    $range = $current_threshold['max'] - $current_threshold['min'];
-    $progress = $current_xp - $current_threshold['min'];
-    $xp_progress = min(100, max(0, ($progress / $range) * 100));
-    $xp_needed = $current_threshold['max'] - $current_xp;
-} else {
-    $xp_progress = 100;
-}
 
 // Collection badge
 $collection_badge = null;

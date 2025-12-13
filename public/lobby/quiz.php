@@ -11,16 +11,16 @@ if (!isset($_GET['room_id'])) {
     exit();
 }
 
+// Database and Models
 require_once '../../app/Config/database.php';
+require_once '../../app/Models/Room.php';
+require_once '../../app/Models/Quiz.php';
 
 $room_id = intval($_GET['room_id']);
 $user_id = $_SESSION['user_id'];
 
-// Fetch Room Info
-$stmt = $conn->prepare("SELECT * FROM rooms WHERE id = ?");
-$stmt->bind_param("i", $room_id);
-$stmt->execute();
-$room = $stmt->get_result()->fetch_assoc();
+// Fetch Room Info using Model
+$room = Room::findById($conn, $room_id);
 
 if (!$room) {
     echo "Room not found.";
@@ -33,20 +33,13 @@ if ($_SESSION['level'] < $room['min_level']) {
     exit();
 }
 
-// Fetch Quizzes for this room (with answered status)
-$sql = "SELECT q.*, 
-        (SELECT COUNT(*) FROM user_quizzes uq WHERE uq.quiz_id = q.id AND uq.user_id = ?) as is_answered
-        FROM quizzes q 
-        WHERE q.room_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $user_id, $room_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch Quizzes with user status using Model
+$raw_quizzes = Quiz::getForUser($conn, $room_id, $user_id);
 
 $quizzes = [];
 $answered_count = 0;
 $total_count = 0;
-while($row = $result->fetch_assoc()) {
+foreach ($raw_quizzes as $row) {
     $row['is_answered'] = $row['is_answered'] > 0;
     if ($row['is_answered']) $answered_count++;
     $total_count++;

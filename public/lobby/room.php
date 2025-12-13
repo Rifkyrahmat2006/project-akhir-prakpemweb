@@ -11,16 +11,15 @@ if (!isset($_GET['id'])) {
     exit();
 }
 
+// Database and Models
 require_once '../../app/Config/database.php';
+require_once '../../app/Models/Room.php';
 
 $room_id = intval($_GET['id']);
 $user_id = $_SESSION['user_id'];
 
-// Fetch Room Info
-$stmt = $conn->prepare("SELECT * FROM rooms WHERE id = ?");
-$stmt->bind_param("i", $room_id);
-$stmt->execute();
-$room = $stmt->get_result()->fetch_assoc();
+// Fetch Room Info using Model
+$room = Room::findById($conn, $room_id);
 
 if (!$room) {
     echo "Room not found.";
@@ -40,18 +39,9 @@ if ($first_visit) {
     $_SESSION[$visit_key] = true;
 }
 
-// Fetch Artifacts & Collection Status
-$sql = "SELECT a.*, 
-        (SELECT COUNT(*) FROM user_collections uc WHERE uc.artifact_id = a.id AND uc.user_id = ?) as is_collected
-        FROM artifacts a 
-        WHERE a.room_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $user_id, $room_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch Artifacts & Collection Status using Model
+$raw_artifacts = Room::getArtifacts($conn, $room_id, $user_id);
 
-$artifacts = [];
-$collected_count = 0;
 // Default positions for fallback
 $fallback_positions = [
     ['top' => '60%', 'left' => '20%'],
@@ -61,8 +51,10 @@ $fallback_positions = [
     ['top' => '50%', 'left' => '60%'],
 ];
 
+$artifacts = [];
+$collected_count = 0;
 $i = 0;
-while($row = $result->fetch_assoc()) {
+foreach ($raw_artifacts as $row) {
     // specific positioning from DB or fallback
     if ($row['position_top'] && $row['position_left']) {
         $row['top'] = $row['position_top'];
@@ -81,23 +73,11 @@ while($row = $result->fetch_assoc()) {
 $total_artifacts = count($artifacts);
 $all_collected = ($collected_count > 0 && $collected_count >= $total_artifacts);
 
-// Check if hidden artifact is unlocked
-$hidden_artifact_unlocked = false;
-$hidden_artifact = null;
-$stmt = $conn->prepare("SELECT id FROM user_hidden_artifacts WHERE user_id = ? AND room_id = ?");
-$stmt->bind_param("ii", $user_id, $room_id);
-$stmt->execute();
-$hidden_artifact_unlocked = $stmt->get_result()->num_rows > 0;
-
-// Get hidden artifact info if room has one
-if ($room['hidden_artifact_name']) {
-    $hidden_artifact = [
-        'name' => $room['hidden_artifact_name'],
-        'desc' => $room['hidden_artifact_desc'],
-        'image' => $room['hidden_artifact_image'],
-        'xp' => $room['hidden_artifact_xp'],
-        'unlocked' => $hidden_artifact_unlocked
-    ];
+// Check hidden artifact status using Model
+$hidden_artifact_unlocked = Room::isHiddenArtifactUnlocked($conn, $room_id, $user_id);
+$hidden_artifact = Room::getHiddenArtifact($conn, $room_id);
+if ($hidden_artifact) {
+    $hidden_artifact['unlocked'] = $hidden_artifact_unlocked;
 }
 
 // Clean description for JS usage
@@ -553,6 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
         congratsSkip.addEventListener('click', hideCongratsModal);
     }
     // Show congrats modal after guide is closed (if all collected)
+    console.log('DEBUG: allCollected=', allCollected, 'congratsShown=', congratsShown, 'modal=', congratsModal);
+    
     if (allCollected && !congratsShown) {
         // If guide is shown, wait for it to close
         if (guideModal && !guideModal.classList.contains('hidden')) {

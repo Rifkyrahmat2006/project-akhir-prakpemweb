@@ -6,20 +6,18 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Fetch Rooms from DB - MUST be before includes since navbar uses session data
+// Database and Models
 require_once '../../app/Config/database.php';
+require_once '../../app/Models/Room.php';
 
 $user_level = $_SESSION['level'] ?? 1;
 
-$sql = "SELECT * FROM rooms ORDER BY min_level ASC";
-$result = $conn->query($sql);
-
+// Get rooms using Model
+$all_rooms = Room::getAll($conn);
 $rooms = [];
-if ($result && $result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $row['is_locked'] = ($user_level < $row['min_level']);
-        $rooms[] = $row;
-    }
+foreach ($all_rooms as $room) {
+    $room['is_locked'] = ($user_level < $room['min_level']);
+    $rooms[] = $room;
 }
 
 include '../header.php';
