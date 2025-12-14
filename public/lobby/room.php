@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Hidden Chest (Shows after all artifacts collected) - Always rendered for dynamic trigger -->
     <div id="hidden-chest" class="absolute cursor-pointer z-20 hidden transform hover:scale-110 transition-all duration-300"
-         style="top: 70%; left: 85%;"
+         style="top: 65%; left: 48%;"
          data-artifact-name="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['name']) : 'Hidden Artifact'; ?>"
          data-artifact-desc="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['description']) : 'A mysterious artifact awaits...'; ?>"
          data-artifact-image="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['image']) : ''; ?>"
@@ -361,9 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="congrats-actions" class="hidden gap-4">
                     <button id="congrats-explore" class="btn-museum bg-gold hover:bg-gold-hover text-black">
                         <i class="fas fa-search mr-2"></i> Find The Chest!
-                    </button>
-                    <button id="congrats-no" class="btn-museum bg-transparent border-gray-500 text-gray-400 hover:text-white hover:border-white">
-                        <i class="fas fa-times mr-2"></i> Maybe later
                     </button>
                 </div>
             </div>
@@ -689,7 +686,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (congratsNo) {
-        congratsNo.addEventListener('click', hideCongratsModal);
+        congratsNo.addEventListener('click', () => {
+            hideCongratsModal();
+            // Still show the chest even if user clicks "Maybe later"
+            // The chest should appear once all artifacts are collected, regardless of button choice
+            window.showHiddenChest();
+        });
     }
     
     // Skip button
@@ -756,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chest = document.createElement('div');
                 chest.id = 'hidden-chest';
                 chest.className = 'absolute cursor-pointer z-20 transform hover:scale-110 transition-all duration-300';
-                chest.style.cssText = 'top: 70%; left: 85%;';
+                chest.style.cssText = 'top: 65%; left: 48%;';
                 chest.dataset.artifactName = window.hiddenArtifactData.name || 'Hidden Artifact';
                 chest.dataset.artifactDesc = window.hiddenArtifactData.description || 'A mysterious artifact.';
                 chest.dataset.artifactImage = window.hiddenArtifactData.image || '';

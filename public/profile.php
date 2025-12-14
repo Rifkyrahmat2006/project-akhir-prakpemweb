@@ -14,9 +14,14 @@ $user_id = $_SESSION['user_id'];
 // Fetch user data using Model
 $user = User::findById($conn, $user_id);
 
+// Get XP and level data using Model (level is calculated, not stored)
+$xp_data = User::getXpAndLevel($conn, $user_id);
+$current_level = $xp_data['level'];  // Use calculated level, not from DB!
+$current_xp = $xp_data['xp'];
+
 // Update session with latest data
-$_SESSION['xp'] = $user['xp'];
-$_SESSION['level'] = $user['level'];
+$_SESSION['xp'] = $current_xp;
+$_SESSION['level'] = $current_level;  // Use calculated level
 
 // Fetch stats using Model
 $stats = User::getStats($conn, $user_id);
@@ -28,11 +33,6 @@ $total_artifacts = $conn->query("SELECT COUNT(*) as count FROM artifacts")->fetc
 
 // Total quizzes
 $total_quizzes = $conn->query("SELECT COUNT(*) as count FROM quizzes")->fetch_assoc()['count'];
-
-// Get XP and level data using Model
-$xp_data = User::getXpAndLevel($conn, $user_id);
-$current_level = $user['level'];
-$current_xp = $user['xp'];
 $xp_progress = $xp_data['progress'];
 $xp_needed = $xp_data['xp_for_next_level'] - $current_xp;
 
