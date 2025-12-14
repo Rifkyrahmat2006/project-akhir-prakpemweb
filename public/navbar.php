@@ -35,6 +35,7 @@ if ($level < 4) {
 }
 $rank_name = $rank_names[$level] ?? 'Visitor';
 $base_path = '/project-akhir/public';
+$avatarUrl = $_SESSION['avatar'] ?? 'https://ui-avatars.com/api/?name=' . urlencode($username) . '&background=C5A059&color=000&size=128&font-size=0.5';
 ?>
 
 <nav class="bg-dark-bg border-b border-gray-800 sticky top-0 z-50">
@@ -73,8 +74,8 @@ $base_path = '/project-akhir/public';
                                 </div>
                             </div>
                         </div>
-                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold flex items-center justify-center text-gold">
-                            <i class="fas fa-crown text-sm"></i>
+                        <div class="h-10 w-10 rounded-full overflow-hidden border-2 border-gold">
+                             <img src="<?php echo $avatarUrl; ?>" alt="User" class="w-full h-full object-cover">
                         </div>
                     </a>
                     
@@ -111,8 +112,8 @@ $base_path = '/project-akhir/public';
             <!-- User Info Mobile -->
             <a href="<?php echo $base_path; ?>/profile.php" class="mb-8 p-4 bg-gray-900 rounded-lg border border-gold/20 block hover:bg-gray-800 transition">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold flex items-center justify-center text-gold">
-                        <i class="fas fa-crown"></i>
+                    <div class="h-12 w-12 rounded-full overflow-hidden border-2 border-gold">
+                         <img src="<?php echo $avatarUrl; ?>" alt="User" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <div class="text-gold font-serif"><?php echo htmlspecialchars($username); ?></div>

@@ -116,9 +116,9 @@ class Quiz {
         // Check answer
         $isCorrect = (strtolower($answer) === strtolower($quiz['correct_option'])) ? 1 : 0;
         
-        // Insert answer record
-        $stmt = $conn->prepare("INSERT INTO user_quizzes (user_id, quiz_id, answer, is_correct) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("iisi", $userId, $quizId, $answer, $isCorrect);
+        // Insert answer record (without storing the actual answer, just the result)
+        $stmt = $conn->prepare("INSERT INTO user_quizzes (user_id, quiz_id, is_correct) VALUES (?, ?, ?)");
+        $stmt->bind_param("iii", $userId, $quizId, $isCorrect);
         $stmt->execute();
         
         // Add XP if correct

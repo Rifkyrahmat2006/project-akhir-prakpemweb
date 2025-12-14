@@ -45,216 +45,170 @@ $ranks = [
 ];
 $rank = $ranks[$current_level] ?? $ranks[1];
 
+// Get Avatar URL
+$avatarUrl = User::getAvatarUrl($user);
+
 // Collection badge
 $collection_badge = null;
 if ($collection_count >= 20) {
-    $collection_badge = ['name' => 'Gold Collector', 'class' => 'badge-gold', 'icon' => 'fa-crown'];
+    $collection_badge = ['name' => 'Gold Collector', 'class' => 'text-yellow-400', 'icon' => 'fa-crown'];
 } elseif ($collection_count >= 10) {
-    $collection_badge = ['name' => 'Silver Collector', 'class' => 'badge-silver', 'icon' => 'fa-medal'];
+    $collection_badge = ['name' => 'Silver Collector', 'class' => 'text-gray-300', 'icon' => 'fa-medal'];
 } elseif ($collection_count >= 5) {
-    $collection_badge = ['name' => 'Bronze Collector', 'class' => 'badge-bronze', 'icon' => 'fa-award'];
+    $collection_badge = ['name' => 'Bronze Collector', 'class' => 'text-orange-400', 'icon' => 'fa-award'];
 }
 
 include 'header.php';
 include 'navbar.php';
 ?>
 
-<div class="min-h-screen" style="background: linear-gradient(135deg, #d4c4a8 0%, #c4b393 25%, #b8a67e 50%, #c4b393 75%, #d4c4a8 100%); background-image: url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\"%3E%3Crect fill=\"%23d4c4a8\" width=\"100\" height=\"100\"/%3E%3Cg fill-opacity=\"0.1\"%3E%3Ccircle fill=\"%23000\" cx=\"50\" cy=\"50\" r=\"1\"/%3E%3Ccircle fill=\"%23000\" cx=\"20\" cy=\"20\" r=\"0.5\"/%3E%3Ccircle fill=\"%23000\" cx=\"80\" cy=\"80\" r=\"0.8\"/%3E%3Ccircle fill=\"%23000\" cx=\"30\" cy=\"70\" r=\"0.3\"/%3E%3Ccircle fill=\"%23000\" cx=\"70\" cy=\"30\" r=\"0.6\"/%3E%3C/g%3E%3C/svg%3E');">
-
-<div class="container mx-auto px-4 py-8 page-fade-in">
-    <!-- Profile Header -->
-    <div class="bg-gradient-to-r from-amber-900/80 to-amber-800/80 rounded-xl p-8 mb-8 border-2 border-amber-700 shadow-2xl" style="box-shadow: inset 0 0 50px rgba(0,0,0,0.3);">
-
-        <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <!-- Avatar -->
-            <div class="relative">
-                <div class="w-32 h-32 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 border-4 border-gold flex items-center justify-center">
-                    <i class="fas <?php echo $rank['icon']; ?> text-5xl <?php echo $rank['color']; ?>"></i>
-                </div>
-                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gold text-black px-3 py-1 rounded-full text-xs font-bold">
-                    LV.<?php echo $current_level; ?>
-                </div>
-            </div>
-            
-            <!-- User Info -->
-            <div class="flex-grow text-center md:text-left">
-                <h1 class="text-3xl font-serif text-gold mb-2"><?php echo htmlspecialchars($user['username']); ?></h1>
-                <p class="text-lg <?php echo $rank['color']; ?> mb-4">
-                    <i class="fas <?php echo $rank['icon']; ?> mr-2"></i><?php echo $rank['name']; ?>
-                </p>
-                
-                <!-- XP Bar -->
-                <div class="max-w-md mx-auto md:mx-0">
-                    <div class="flex justify-between text-sm text-gray-400 mb-1">
-                        <span><?php echo number_format($current_xp); ?> XP</span>
-                        <?php if ($current_level < 4): ?>
-                            <span><?php echo number_format($xp_needed); ?> XP to Level <?php echo $current_level + 1; ?></span>
-                        <?php else: ?>
-                            <span>MAX LEVEL</span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="xp-bar-container h-3 rounded-full bg-gray-700">
-                        <div class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%"></div>
-                    </div>
-                </div>
-                
-                <!-- Member Since -->
-                <p class="text-gray-500 text-sm mt-4">
-                    <i class="fas fa-calendar-alt mr-2"></i>Member since <?php echo date('F Y', strtotime($user['created_at'])); ?>
-                </p>
-            </div>
-            
-            <!-- Quick Stats -->
-            <div class="flex md:flex-col gap-4">
-                <div class="text-center px-6 py-3 bg-gray-800/50 rounded-lg border border-gray-700">
-                    <div class="text-2xl font-bold text-gold"><?php echo $collection_count; ?></div>
-                    <div class="text-xs text-gray-400 uppercase tracking-wider">Artifacts</div>
-                </div>
-                <div class="text-center px-6 py-3 bg-gray-800/50 rounded-lg border border-gray-700">
-                    <div class="text-2xl font-bold text-gold"><?php echo $quiz_count; ?></div>
-                    <div class="text-xs text-gray-400 uppercase tracking-wider">Quizzes</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
     
-    <div class="grid md:grid-cols-2 gap-8">
-        <!-- Progress Stats -->
-        <div class="bg-amber-800/60 rounded-xl p-6 border-2 border-amber-700 shadow-lg" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.2);">
-            <h2 class="text-xl font-serif text-amber-200 mb-6 flex items-center gap-2">
-                <i class="fas fa-chart-line"></i> Progress
-            </h2>
+    <div class="container mx-auto px-4 py-8 page-fade-in max-w-5xl">
+        
+        <!-- Profile Header with Glass Effect -->
+        <div class="relative overflow-hidden rounded-2xl p-8 mb-8 border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+            <!-- Decorative Glow -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <!-- Collection Progress -->
-            <div class="mb-6">
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-gray-300">Artifacts Collected</span>
-                    <span class="text-gold"><?php echo $collection_count; ?>/<?php echo $total_artifacts; ?></span>
+            <div class="relative flex flex-col md:flex-row items-center md:items-start gap-8">
+                <!-- Avatar -->
+                <div class="relative group">
+                    <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-white/10 shadow-lg group-hover:border-gold/50 transition-colors duration-300">
+                         <img src="<?php echo $avatarUrl; ?>" alt="Profile Avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-neutral-900 border border-gold/30 text-gold px-4 py-1 rounded-full text-xs font-bold tracking-widest shadow-lg">
+                        LV.<?php echo $current_level; ?>
+                    </div>
                 </div>
-                <div class="w-full bg-gray-800 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-gold to-yellow-500 h-2 rounded-full transition-all" 
-                         style="width: <?php echo $total_artifacts > 0 ? ($collection_count / $total_artifacts * 100) : 0; ?>%"></div>
+                
+                <!-- User Info -->
+                <div class="flex-grow text-center md:text-left pt-2">
+                    <h1 class="text-4xl font-serif text-white mb-2 tracking-wide"><?php echo htmlspecialchars($user['username']); ?></h1>
+                    
+                    <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                        <p class="text-sm font-medium tracking-wider uppercase <?php echo $rank['color']; ?> bg-white/5 px-3 py-1 rounded border border-white/5">
+                            <i class="fas <?php echo $rank['icon']; ?> mr-2"></i><?php echo $rank['name']; ?>
+                        </p>
+                        <p class="text-gray-500 text-xs flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>Joined <?php echo date('F Y', strtotime($user['created_at'])); ?>
+                        </p>
+                    </div>
+                    
+                    <!-- New Minimal XP Bar -->
+                    <div class="max-w-lg mx-auto md:mx-0">
+                        <div class="flex justify-between text-xs text-gray-400 mb-2 font-mono">
+                            <span>CURRENT XP: <span class="text-white"><?php echo number_format($current_xp); ?></span></span>
+                            <?php if ($current_level < 4): ?>
+                                <span>NEXT LEVEL: <span class="text-white"><?php echo number_format($xp_needed); ?></span></span>
+                            <?php else: ?>
+                                <span class="text-gold">MAX LEVEL</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-gold to-amber-200 rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(197,160,89,0.5)]" style="width: <?php echo $xp_progress; ?>%"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Quiz Progress -->
-            <div class="mb-6">
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-gray-300">Quizzes Completed</span>
-                    <span class="text-gold"><?php echo $quiz_count; ?>/<?php echo $total_quizzes; ?></span>
-                </div>
-                <div class="w-full bg-gray-800 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all" 
-                         style="width: <?php echo $total_quizzes > 0 ? ($quiz_count / $total_quizzes * 100) : 0; ?>%"></div>
-                </div>
-            </div>
-            
-            <!-- Level Progress -->
-            <div>
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-gray-300">Level Progress</span>
-                    <span class="text-gold"><?php echo $current_level; ?>/4</span>
-                </div>
-                <div class="w-full bg-gray-800 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all" 
-                         style="width: <?php echo ($current_level / 4) * 100; ?>%"></div>
+                
+                <!-- Simplified Quick Stats -->
+                <div class="flex gap-6 mt-6 md:mt-0 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-serif text-white mb-1"><?php echo $collection_count; ?></div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Artifacts</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-serif text-white mb-1"><?php echo $quiz_count; ?></div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Quizzes</div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Achievements -->
-        <div class="bg-amber-800/60 rounded-xl p-6 border-2 border-amber-700 shadow-lg" style="box-shadow: inset 0 0 30px rgba(0,0,0,0.2);">
-            <h2 class="text-xl font-serif text-amber-200 mb-6 flex items-center gap-2">
-                <i class="fas fa-trophy"></i> Achievements
-            </h2>
-            
-            <div class="space-y-4">
-                <!-- Rank Achievement -->
-                <div class="flex items-center gap-4 p-4 rounded-lg <?php echo $current_level >= 1 ? 'bg-gold/10 border border-gold/30' : 'bg-gray-800/50 border border-gray-700 opacity-50'; ?>">
-                    <div class="w-12 h-12 rounded-full <?php echo $current_level >= 1 ? 'bg-gold/20' : 'bg-gray-700'; ?> flex items-center justify-center">
-                        <i class="fas fa-user <?php echo $current_level >= 1 ? 'text-gold' : 'text-gray-500'; ?>"></i>
+        <!-- Content Grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Progress Section -->
+            <div class="p-6 rounded-xl border border-white/5 bg-neutral-900/50 backdrop-blur-sm">
+                <h2 class="text-lg font-serif text-gray-200 mb-6 flex items-center border-b border-white/5 pb-4">
+                    <i class="fas fa-chart-line text-gold mr-3"></i> Progress Overview
+                </h2>
+                
+                <!-- Collection Progress -->
+                <div class="mb-8 group">
+                    <div class="flex justify-between text-sm mb-3">
+                        <span class="text-gray-400 group-hover:text-gray-300 transition-colors">Artifact Collection</span>
+                        <span class="font-mono text-gold"><?php echo $collection_count; ?> <span class="text-gray-600">/</span> <?php echo $total_artifacts; ?></span>
                     </div>
-                    <div>
-                        <div class="font-bold <?php echo $current_level >= 1 ? 'text-gold' : 'text-gray-500'; ?>">First Steps</div>
-                        <div class="text-xs text-gray-400">Join the museum as a Visitor</div>
+                    <div class="w-full bg-gray-800/50 rounded-full h-1">
+                        <div class="bg-gray-400 h-1 rounded-full transition-all group-hover:bg-gold duration-500" 
+                             style="width: <?php echo $total_artifacts > 0 ? ($collection_count / $total_artifacts * 100) : 0; ?>%"></div>
                     </div>
-                    <?php if ($current_level >= 1): ?>
-                        <i class="fas fa-check-circle text-green-500 ml-auto"></i>
-                    <?php endif; ?>
                 </div>
                 
-                <!-- Explorer Achievement -->
-                <div class="flex items-center gap-4 p-4 rounded-lg <?php echo $current_level >= 2 ? 'bg-blue-900/20 border border-blue-500/30' : 'bg-gray-800/50 border border-gray-700 opacity-50'; ?>">
-                    <div class="w-12 h-12 rounded-full <?php echo $current_level >= 2 ? 'bg-blue-500/20' : 'bg-gray-700'; ?> flex items-center justify-center">
-                        <i class="fas fa-compass <?php echo $current_level >= 2 ? 'text-blue-400' : 'text-gray-500'; ?>"></i>
+                <!-- Quiz Progress -->
+                <div class="mb-4 group">
+                    <div class="flex justify-between text-sm mb-3">
+                        <span class="text-gray-400 group-hover:text-gray-300 transition-colors">Quiz Mastery</span>
+                        <span class="font-mono text-gold"><?php echo $quiz_count; ?> <span class="text-gray-600">/</span> <?php echo $total_quizzes; ?></span>
+                    </div>
+                    <div class="w-full bg-gray-800/50 rounded-full h-1">
+                        <div class="bg-gray-400 h-1 rounded-full transition-all group-hover:bg-gold duration-500" 
+                             style="width: <?php echo $total_quizzes > 0 ? ($quiz_count / $total_quizzes * 100) : 0; ?>%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div class="p-6 rounded-xl border border-white/5 bg-neutral-900/50 backdrop-blur-sm">
+                <h2 class="text-lg font-serif text-gray-200 mb-6 flex items-center border-b border-white/5 pb-4">
+                    <i class="fas fa-certificate text-gold mr-3"></i> Badges & Rank
+                </h2>
+                
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded bg-black/50 border border-white/10 flex items-center justify-center">
+                        <i class="fas <?php echo $rank['icon']; ?> <?php echo $rank['color']; ?> text-xl"></i>
                     </div>
                     <div>
-                        <div class="font-bold <?php echo $current_level >= 2 ? 'text-blue-400' : 'text-gray-500'; ?>">Explorer</div>
-                        <div class="text-xs text-gray-400">Reach Level 2 (100+ XP)</div>
+                        <div class="text-sm text-gray-400">Current Rank</div>
+                        <div class="text-lg text-white font-serif"><?php echo $rank['name']; ?></div>
                     </div>
-                    <?php if ($current_level >= 2): ?>
-                        <i class="fas fa-check-circle text-green-500 ml-auto"></i>
-                    <?php endif; ?>
                 </div>
-                
-                <!-- Historian Achievement -->
-                <div class="flex items-center gap-4 p-4 rounded-lg <?php echo $current_level >= 3 ? 'bg-purple-900/20 border border-purple-500/30' : 'bg-gray-800/50 border border-gray-700 opacity-50'; ?>">
-                    <div class="w-12 h-12 rounded-full <?php echo $current_level >= 3 ? 'bg-purple-500/20' : 'bg-gray-700'; ?> flex items-center justify-center">
-                        <i class="fas fa-book <?php echo $current_level >= 3 ? 'text-purple-400' : 'text-gray-500'; ?>"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold <?php echo $current_level >= 3 ? 'text-purple-400' : 'text-gray-500'; ?>">Historian</div>
-                        <div class="text-xs text-gray-400">Reach Level 3 (300+ XP)</div>
-                    </div>
-                    <?php if ($current_level >= 3): ?>
-                        <i class="fas fa-check-circle text-green-500 ml-auto"></i>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Royal Curator Achievement -->
-                <div class="flex items-center gap-4 p-4 rounded-lg <?php echo $current_level >= 4 ? 'bg-yellow-900/20 border border-yellow-500/30' : 'bg-gray-800/50 border border-gray-700 opacity-50'; ?>">
-                    <div class="w-12 h-12 rounded-full <?php echo $current_level >= 4 ? 'bg-yellow-500/20' : 'bg-gray-700'; ?> flex items-center justify-center">
-                        <i class="fas fa-crown <?php echo $current_level >= 4 ? 'text-yellow-400' : 'text-gray-500'; ?>"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold <?php echo $current_level >= 4 ? 'text-yellow-400' : 'text-gray-500'; ?>">Royal Curator</div>
-                        <div class="text-xs text-gray-400">Reach Level 4 (600+ XP)</div>
-                    </div>
-                    <?php if ($current_level >= 4): ?>
-                        <i class="fas fa-check-circle text-green-500 ml-auto"></i>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Collection Badge -->
+
                 <?php if ($collection_badge): ?>
-                <div class="flex items-center gap-4 p-4 rounded-lg bg-amber-900/20 border border-amber-500/30">
-                    <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                        <i class="fas <?php echo $collection_badge['icon']; ?> text-amber-400"></i>
+                    <div class="flex items-center gap-4 p-4 rounded-lg bg-gradient-to-r from-white/5 to-transparent border border-white/5">
+                        <div class="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                             <i class="fas <?php echo $collection_badge['icon']; ?> <?php echo $collection_badge['class']; ?>"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Unlocked Badge</div>
+                            <div class="text-white font-medium"><?php echo $collection_badge['name']; ?></div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="font-bold text-amber-400"><?php echo $collection_badge['name']; ?></div>
-                        <div class="text-xs text-gray-400">Collected <?php echo $collection_count; ?> artifacts</div>
+                <?php else: ?>
+                    <div class="text-sm text-gray-500 italic p-4 text-center border border-dashed border-white/10 rounded-lg">
+                        Collect more artifacts to earn badges.
                     </div>
-                    <i class="fas fa-check-circle text-green-500 ml-auto"></i>
-                </div>
                 <?php endif; ?>
+                
+                <div class="mt-6 pt-4 border-t border-white/5">
+                    <a href="lobby/my_collection.php" class="block w-full text-center py-2 rounded bg-white/5 hover:bg-gold/10 hover:text-gold text-gray-400 text-sm transition-all border border-transparent hover:border-gold/30">
+                        View Full Collection
+                    </a>
+                </div>
             </div>
         </div>
+
+        <!-- Account Actions -->
+        <div class="mt-8 flex justify-end gap-4">
+             <a href="settings.php" class="px-6 py-2 rounded border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-sm">
+                <i class="fas fa-cog mr-2"></i>Settings
+            </a>
+            <a href="logout.php" class="px-6 py-2 rounded bg-red-900/20 border border-red-900/50 text-red-500 hover:bg-red-900/40 transition-colors text-sm">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+            </a>
+        </div>
+        
     </div>
-    
-    <!-- Quick Links -->
-    <div class="mt-8 flex flex-wrap gap-4 justify-center">
-        <a href="lobby/" class="btn-museum">
-            <i class="fas fa-door-open mr-2"></i> Explore Rooms
-        </a>
-        <a href="lobby/my_collection.php" class="btn-museum">
-            <i class="fas fa-gem mr-2"></i> My Collection
-        </a>
-    </div>
-</div>
 </div>
 
-<?php 
-$conn->close();
-include 'footer.php'; 
-?>
+<?php include 'footer.php'; ?>
