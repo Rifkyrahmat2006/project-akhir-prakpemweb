@@ -60,16 +60,16 @@ $base_path = '/project-akhir/public';
                         <div class="text-right">
                             <div class="flex items-center gap-2">
                                 <span class="text-gold font-serif text-sm"><?php echo htmlspecialchars($username); ?></span>
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-800 border border-gold/30 text-gold"><?php echo $rank_name; ?></span>
+                                <span id="rank-text-desktop" class="text-xs px-2 py-0.5 rounded-full bg-gray-800 border border-gold/30 text-gold"><?php echo $rank_name; ?></span>
                             </div>
                             <!-- XP Progress Bar -->
                             <div class="w-32 mt-1">
                                 <div class="xp-bar-container h-1.5 rounded-full bg-gray-800">
-                                    <div class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%"></div>
+                                    <div id="xp-bar-fill-desktop" class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%" data-current-xp="<?php echo $current_xp; ?>" data-level="<?php echo $level; ?>"></div>
                                 </div>
                                 <div class="flex justify-between text-xs text-gray-500 mt-0.5">
-                                    <span><?php echo number_format($current_xp); ?> XP</span>
-                                    <span>LV.<?php echo $level; ?></span>
+                                    <span id="xp-text-desktop"><?php echo number_format($current_xp); ?> XP</span>
+                                    <span id="level-text-desktop">LV.<?php echo $level; ?></span>
                                 </div>
                             </div>
                         </div>
@@ -116,13 +116,13 @@ $base_path = '/project-akhir/public';
                     </div>
                     <div>
                         <div class="text-gold font-serif"><?php echo htmlspecialchars($username); ?></div>
-                        <div class="text-xs text-gray-400"><?php echo $rank_name; ?> • Level <?php echo $level; ?></div>
+                        <div class="text-xs text-gray-400"><span id="rank-text-mobile"><?php echo $rank_name; ?></span> • Level <span id="level-text-mobile"><?php echo $level; ?></span></div>
                     </div>
                 </div>
                 <div class="xp-bar-container h-2 rounded-full bg-gray-800">
-                    <div class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%"></div>
+                    <div id="xp-bar-fill-mobile" class="xp-bar-fill h-full rounded-full" style="width: <?php echo $xp_progress; ?>%"></div>
                 </div>
-                <div class="text-xs text-gray-500 mt-1"><?php echo number_format($current_xp); ?> XP</div>
+                <div id="xp-text-mobile" class="text-xs text-gray-500 mt-1"><?php echo number_format($current_xp); ?> XP</div>
             </a>
             
             <nav class="flex flex-col space-y-4">

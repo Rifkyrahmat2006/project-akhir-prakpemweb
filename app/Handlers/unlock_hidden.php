@@ -54,6 +54,32 @@ if ($unlocked) {
     $_SESSION['xp'] = $user['xp'];
     $_SESSION['level'] = $user['level'];
     
+    // Calculate XP progress for client-side update
+    $xp_thresholds = [
+        1 => ['min' => 0, 'max' => 100],
+        2 => ['min' => 101, 'max' => 300],
+        3 => ['min' => 301, 'max' => 600],
+        4 => ['min' => 601, 'max' => 1000]
+    ];
+    $rank_names = [
+        1 => 'Visitor',
+        2 => 'Explorer',
+        3 => 'Historian',
+        4 => 'Royal Curator'
+    ];
+    $new_level = $user['level'];
+    $new_xp = $user['xp'];
+    $current_threshold = $xp_thresholds[$new_level] ?? $xp_thresholds[1];
+    $xp_progress = 0;
+    if ($new_level < 4) {
+        $range = $current_threshold['max'] - $current_threshold['min'];
+        $progress = $new_xp - $current_threshold['min'];
+        $xp_progress = min(100, max(0, ($progress / $range) * 100));
+    } else {
+        $xp_progress = 100;
+    }
+    $rank_name = $rank_names[$new_level] ?? 'Visitor';
+    
     echo json_encode([
         'success' => true,
         'message' => 'Hidden artifact unlocked!',
@@ -61,6 +87,8 @@ if ($unlocked) {
         'leveled_up' => $level_up,
         'new_level' => $user['level'],
         'new_xp' => $user['xp'],
+        'xp_progress' => $xp_progress,
+        'rank_name' => $rank_name,
         'artifact' => $hidden_artifact
     ]);
 } else {

@@ -36,6 +36,43 @@
 </div>
 
 <script>
+    // Function to update XP bar dynamically
+    function updateXpBar(newXp, xpProgress, newLevel, rankName) {
+        // Update desktop XP bar
+        const xpBarDesktop = document.getElementById('xp-bar-fill-desktop');
+        const xpTextDesktop = document.getElementById('xp-text-desktop');
+        const levelTextDesktop = document.getElementById('level-text-desktop');
+        const rankTextDesktop = document.getElementById('rank-text-desktop');
+        
+        if (xpBarDesktop) {
+            xpBarDesktop.style.width = xpProgress + '%';
+            xpBarDesktop.dataset.currentXp = newXp;
+            xpBarDesktop.dataset.level = newLevel;
+        }
+        if (xpTextDesktop) xpTextDesktop.textContent = newXp.toLocaleString() + ' XP';
+        if (levelTextDesktop) levelTextDesktop.textContent = 'LV.' + newLevel;
+        if (rankTextDesktop) rankTextDesktop.textContent = rankName;
+        
+        // Update mobile XP bar
+        const xpBarMobile = document.getElementById('xp-bar-fill-mobile');
+        const xpTextMobile = document.getElementById('xp-text-mobile');
+        const levelTextMobile = document.getElementById('level-text-mobile');
+        const rankTextMobile = document.getElementById('rank-text-mobile');
+        
+        if (xpBarMobile) xpBarMobile.style.width = xpProgress + '%';
+        if (xpTextMobile) xpTextMobile.textContent = newXp.toLocaleString() + ' XP';
+        if (levelTextMobile) levelTextMobile.textContent = newLevel;
+        if (rankTextMobile) rankTextMobile.textContent = rankName;
+        
+        // Add animation effect to XP bar
+        if (xpBarDesktop) {
+            xpBarDesktop.style.transition = 'width 0.5s ease-out';
+        }
+        if (xpBarMobile) {
+            xpBarMobile.style.transition = 'width 0.5s ease-out';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         // Use a more generic class selector if needed, or stick to .artifact-item
         // We will ensure both room.php items and my_collection.php items use this class
@@ -116,6 +153,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update XP bar dynamically
+                    if (data.new_xp !== undefined && data.xp_progress !== undefined) {
+                        updateXpBar(data.new_xp, data.xp_progress, data.new_level, data.rank_name || 'Visitor');
+                    }
+                    
                     // Update UI
                     const artEl = document.querySelector(`.artifact-item[data-id="${currentArtifactId}"]`);
                     if(artEl) {
@@ -163,13 +205,17 @@
                         }, 500);
                     } else {
                         // Show XP notification for non-final artifact
-                        alert(`Collected! +XP`);
+                        if (data.new_xp !== undefined) {
+                            // Small toast notification instead of alert
+                            const xpGained = data.xp_reward || 'some';
+                            console.log(`Collected! +${xpGained} XP`);
+                        }
                     }
                     
                     // Handle level up
                     if (data.leveled_up) {
                         setTimeout(() => {
-                            alert(`LEVEL UP! You are now Level ${data.new_level}`);
+                            alert(`🎉 LEVEL UP! You are now Level ${data.new_level}!`);
                         }, 100);
                     }
                 } else {

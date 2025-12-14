@@ -30,10 +30,10 @@ $door_images = [
 
 // Door positions - uniform size, same bottom alignment, slightly smaller
 $door_positions = [
-    ['left' => '16%', 'bottom' => '3%', 'height' => '68%'],
-    ['left' => '36%', 'bottom' => '3%', 'height' => '68%'],
-    ['left' => '56%', 'bottom' => '3%', 'height' => '68%'],
-    ['left' => '76%', 'bottom' => '3%', 'height' => '68%'],
+    ['left' => '20%', 'bottom' => '5%', 'height' => '60%'],
+    ['left' => '40%', 'bottom' => '8%', 'height' => '50%'],
+    ['left' => '60%', 'bottom' => '8%', 'height' => '55%'],
+    ['left' => '80%', 'bottom' => '8%', 'height' => '50%'],
 ];
 
 include '../header.php';

@@ -358,17 +358,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
                 
                 <!-- Action Buttons (hidden initially, shown at last message) -->
-<<<<<<< Updated upstream
-                <div id="congrats-actions" class="hidden flex gap-4">
-                    <a href="quiz.php?room_id=<?php echo $room_id; ?>" class="btn-museum bg-gold hover:bg-gold-hover text-black">
-                        <i class="fas fa-check mr-2"></i> Yes, let's go!
-                    </a>
-=======
                 <div id="congrats-actions" class="hidden gap-4">
                     <button id="congrats-explore" class="btn-museum bg-gold hover:bg-gold-hover text-black">
                         <i class="fas fa-search mr-2"></i> Find The Chest!
                     </button>
->>>>>>> Stashed changes
                     <button id="congrats-no" class="btn-museum bg-transparent border-gray-500 text-gray-400 hover:text-white hover:border-white">
                         <i class="fas fa-times mr-2"></i> Maybe later
                     </button>
@@ -1050,6 +1043,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             
             if (data.success) {
+                // Update XP bar dynamically
+                if (typeof updateXpBar === 'function' && data.new_xp !== undefined && data.xp_progress !== undefined) {
+                    updateXpBar(data.new_xp, data.xp_progress, data.new_level, data.rank_name || 'Visitor');
+                }
+                
                 // Update chest to unlocked state
                 if (hiddenChest) {
                     hiddenChest.dataset.unlocked = 'true';
