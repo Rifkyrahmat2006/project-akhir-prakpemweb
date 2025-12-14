@@ -1,12 +1,14 @@
 <?php
-session_start();
+/**
+ * Admin - Manage Quizzes
+ * Uses Middleware for admin authentication
+ */
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../public/login.php");
-    exit();
-}
+// Load bootstrap
+require_once '../app/bootstrap.php';
 
-require_once '../app/Config/database.php';
+// Require admin access
+requireAdmin('../public/login.php');
 
 // Fetch all rooms with quiz count
 $rooms_result = $conn->query("
@@ -47,36 +49,8 @@ include '../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-darker-bg border-r border-gold/20 flex flex-col">
-        <div class="p-6 border-b border-gold/20">
-            <h1 class="text-gold font-serif text-2xl font-bold">Curator Panel</h1>
-        </div>
-        
-        <nav class="flex-grow p-4 space-y-2">
-            <a href="index.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-chart-line w-6"></i> Dashboard
-            </a>
-            <a href="artifacts.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-boxes w-6"></i> Manage Artifacts
-            </a>
-            <a href="quizzes.php" class="block px-4 py-3 rounded bg-gold/10 text-gold border-l-4 border-gold">
-                <i class="fas fa-question-circle w-6"></i> Manage Quizzes
-            </a>
-            <a href="users.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-users w-6"></i> Visitors
-            </a>
-            <a href="room_editor.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-map w-6"></i> Room Editor
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-gold/20">
-            <a href="../public/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
-                <i class="fas fa-eye mr-2"></i> View Site
-            </a>
-        </div>
-    </aside>
+    <!-- Sidebar Component -->
+    <?php adminSidebar('quizzes'); ?>
 
     <!-- Main Content -->
     <main class="flex-grow p-8 overflow-y-auto">
@@ -89,24 +63,13 @@ include '../public/header.php';
         <?php if (!$selected_room): ?>
             <!-- Room Selection View -->
             <div class="mb-8">
-                <h2 class="text-3xl text-white font-serif mb-2">Room Quizzes</h2>
+                <h2 class="text-3xl text-white font-serif mb-2">Manage Quizzes</h2>
                 <p class="text-gray-400">Select a room to manage its quizzes</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($rooms as $room): ?>
-                    <a href="?room_id=<?php echo $room['id']; ?>" class="bg-darker-bg border border-gray-800 rounded-lg p-6 hover:border-gold/50 hover:bg-gray-800/50 transition group">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-white font-serif text-lg group-hover:text-gold transition"><?php echo htmlspecialchars($room['name']); ?></h3>
-                            <span class="bg-purple-900/30 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-sm">
-                                <?php echo $room['quiz_count']; ?> Quiz
-                            </span>
-                        </div>
-                        <p class="text-gray-500 text-sm"><?php echo htmlspecialchars($room['description']); ?></p>
-                        <div class="mt-4 text-gold text-sm opacity-0 group-hover:opacity-100 transition">
-                            <i class="fas fa-arrow-right mr-2"></i> Manage Quizzes
-                        </div>
-                    </a>
+                    <?php roomCard($room, 'quizzes.php', 'Quizzes', $room['quiz_count']); ?>
                 <?php endforeach; ?>
             </div>
 

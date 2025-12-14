@@ -1,18 +1,16 @@
 <?php
-session_start();
-// Check Auth
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
+/**
+ * Quiz Answer Handler
+ * Uses Middleware for authentication
+ */
 
-// Database and Models
-require_once '../../app/Config/database.php';
-require_once '../../app/Models/User.php';
-require_once '../../app/Models/Quiz.php';
-require_once '../../app/Models/Room.php';
+// Load bootstrap (includes all middleware, models, and database)
+require_once '../../app/bootstrap.php';
 
-$user_id = $_SESSION['user_id'];
+// Require authentication
+requireAuth('../login.php');
+
+$user_id = userId();
 $room_id = isset($_GET['room_id']) ? intval($_GET['room_id']) : 0;
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 $answer = isset($_GET['answer']) ? strtolower(trim($_GET['answer'])) : '';

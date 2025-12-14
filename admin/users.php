@@ -1,13 +1,14 @@
 <?php
-session_start();
+/**
+ * Admin - Manage Users
+ * Uses Middleware for admin authentication
+ */
 
-// Security Check
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../public/login.php");
-    exit();
-}
+// Load bootstrap
+require_once '../app/bootstrap.php';
 
-require_once '../app/Config/database.php';
+// Require admin access
+requireAdmin('../public/login.php');
 
 // Fetch Users
 $sql = "SELECT id, username, level, xp, created_at, 
@@ -25,36 +26,8 @@ include '../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-darker-bg border-r border-gold/20 flex flex-col">
-        <div class="p-6 border-b border-gold/20">
-            <h1 class="text-gold font-serif text-2xl font-bold">Curator Panel</h1>
-        </div>
-        
-        <nav class="flex-grow p-4 space-y-2">
-            <a href="index.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-chart-line w-6"></i> Dashboard
-            </a>
-            <a href="artifacts.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-boxes w-6"></i> Manage Artifacts
-            </a>
-            <a href="quizzes.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-question-circle w-6"></i> Manage Quizzes
-            </a>
-            <a href="users.php" class="block px-4 py-3 rounded bg-gold/10 text-gold border-l-4 border-gold">
-                <i class="fas fa-users w-6"></i> Visitors
-            </a>
-            <a href="room_editor.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-map w-6"></i> Room Editor
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-gold/20">
-            <a href="../public/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
-                <i class="fas fa-eye mr-2"></i> View Site
-            </a>
-        </div>
-    </aside>
+    <!-- Sidebar Component -->
+    <?php adminSidebar('users'); ?>
 
     <!-- Main Content -->
     <main class="flex-grow p-8 overflow-y-auto">

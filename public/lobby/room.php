@@ -1,22 +1,23 @@
 <?php
-session_start();
-// Check Auth
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
-// Check ID
+/**
+ * Room View - Display artifacts and interactive elements
+ * Uses Middleware for authentication and access control
+ */
+
+// Load bootstrap (includes all middleware, models, and database)
+require_once '../../app/bootstrap.php';
+
+// Require authentication
+requireAuth('../login.php');
+
+// Check ID parameter
 if (!isset($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
 
-// Database and Models
-require_once '../../app/Config/database.php';
-require_once '../../app/Models/Room.php';
-
 $room_id = intval($_GET['id']);
-$user_id = $_SESSION['user_id'];
+$user_id = userId();
 
 // Fetch Room Info using Model
 $room = Room::findById($conn, $room_id);
@@ -26,11 +27,8 @@ if (!$room) {
     exit();
 }
 
-// Check Access (Security)
-if ($_SESSION['level'] < $room['min_level']) {
-    header("Location: index.php");
-    exit();
-}
+// Check Access (Security) - Require minimum level
+requireLevel($room['min_level'], 'index.php');
 
 // Always show professor guide on room entry
 $first_visit = true; // Always show the guide modal
@@ -92,14 +90,8 @@ $room_name = addslashes($room['name']);
 include '../header.php';
 include '../navbar.php';
 
-// Determine room music based on room name
-$room_music_map = [
-    'Medieval Hall' => 'medieval.mp3',
-    'Renaissance Gallery' => 'Renaissance.mp3',
-    'Baroque Palace' => 'baroque.mp3',
-    'Royal Archives' => 'archive.mp3'
-];
-$room_music = $room_music_map[$room['name']] ?? 'lobby.mp3';
+// Determine room music from config
+$room_music = getRoomMusic($room['name']);
 ?>
 
 <!-- Room-Specific Background Music -->

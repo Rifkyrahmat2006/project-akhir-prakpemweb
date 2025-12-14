@@ -1,13 +1,15 @@
 <?php
-session_start();
+/**
+ * Admin - Room Editor
+ * Uses Middleware for admin authentication
+ * Refactored to use standard sidebar with room selection in main content
+ */
 
-// Security Check
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../public/login.php");
-    exit();
-}
+// Load bootstrap
+require_once '../app/bootstrap.php';
 
-require_once '../app/Config/database.php';
+// Require admin access
+requireAdmin('../public/login.php');
 
 // Fetch Rooms
 $rooms_result = $conn->query("SELECT * FROM rooms");
@@ -34,7 +36,6 @@ if (isset($_GET['room_id'])) {
     $stmt->execute();
     $result = $stmt->get_result();
     while($row = $result->fetch_assoc()) {
-        // Use saved position or default to random-ish center if null
         $row['top'] = $row['position_top'] ?? '50%';
         $row['left'] = $row['position_left'] ?? '50%';
         $artifacts[] = $row;
@@ -45,37 +46,38 @@ include '../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-darker-bg border-r border-gold/20 flex flex-col shrink-0 overflow-y-auto z-20">
-        <div class="p-6 border-b border-gold/20">
-            <h1 class="text-gold font-serif text-2xl font-bold">Curator Panel</h1>
-            <p class="text-gray-500 text-xs uppercase tracking-widest mt-1">Room Editor</p>
-        </div>
-        
-        <nav class="flex-grow p-4 space-y-2">
-            <a href="index.php" class="block px-4 py-3 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                <i class="fas fa-arrow-left w-6"></i> Back to Dashboard
-            </a>
-            
-            <div class="mt-4 mb-2 px-4 text-xs text-gray-500 uppercase tracking-widest">Select Room</div>
-            
-            <?php foreach($rooms as $room): ?>
-                <a href="?room_id=<?php echo $room['id']; ?>" class="block px-4 py-3 rounded transition flex items-center justify-between <?php echo ($selected_room && $selected_room['id'] == $room['id']) ? 'bg-gold/10 text-gold border-l-4 border-gold' : 'text-gray-400 hover:text-white hover:bg-gray-800'; ?>">
-                    <span><?php echo htmlspecialchars($room['name']); ?></span>
-                    <i class="fas fa-chevron-right text-xs opacity-50"></i>
-                </a>
-            <?php endforeach; ?>
-        </nav>
-    </aside>
+    <!-- Sidebar Component (Standard) -->
+    <?php adminSidebar('room_editor'); ?>
 
     <!-- Main Content -->
-    <main class="flex-grow relative flex flex-col h-full">
-        <?php if ($selected_room): ?>
+    <main class="flex-grow relative flex flex-col h-full overflow-hidden">
+        <?php if (!$selected_room): ?>
+            <!-- Room Selection View -->
+            <div class="p-8 overflow-y-auto">
+                <div class="mb-8">
+                    <h2 class="text-3xl text-white font-serif mb-2">Room Editor</h2>
+                    <p class="text-gray-400">Select a room to edit artifact positions and configure settings</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($rooms as $room): 
+                        $artifactCount = $conn->query("SELECT COUNT(*) as c FROM artifacts WHERE room_id = {$room['id']}")->fetch_assoc()['c'];
+                    ?>
+                        <?php roomCard($room, 'room_editor.php', 'Artifacts', $artifactCount); ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php else: ?>
             <!-- Toolbar -->
-            <div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center z-10 shadow-lg">
-                <div>
-                    <h2 class="text-white font-serif text-xl border-l-4 border-gold pl-3"><?php echo $selected_room['name']; ?></h2>
-                    <p class="text-gray-400 text-xs mt-1 ml-4">Drag artifacts to reposition. Click Save when done.</p>
+            <div class="bg-gray-900 border-b border-gray-700 p-4 flex justify-between items-center z-10 shadow-lg shrink-0">
+                <div class="flex items-center gap-4">
+                    <a href="room_editor.php" class="text-gray-400 hover:text-white transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h2 class="text-white font-serif text-xl border-l-4 border-gold pl-3"><?php echo $selected_room['name']; ?></h2>
+                        <p class="text-gray-400 text-xs mt-1 ml-4">Drag artifacts to reposition. Click Save when done.</p>
+                    </div>
                 </div>
                 <div class="flex gap-2">
                     <button id="btn-toggle-dialogs" class="btn-museum bg-purple-600 border-purple-500 text-white hover:bg-purple-500">
@@ -87,9 +89,8 @@ include '../public/header.php';
                 </div>
             </div>
             
-            
             <!-- Dialog Editor Panel (Hidden by default) -->
-            <div id="dialog-editor" class="hidden bg-gray-900 border-b border-gray-700 p-6 max-h-[70vh] overflow-y-auto">
+            <div id="dialog-editor" class="hidden bg-gray-900 border-b border-gray-700 p-6 max-h-[70vh] overflow-y-auto shrink-0">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-gold font-serif text-lg"><i class="fas fa-book-open mr-2"></i>Professor Dialog Messages</h3>
@@ -159,9 +160,8 @@ Collect them all to gain knowledge and experience. Good luck!"><?php
                             <!-- 3. Core Light -->
                             <div class="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:w-2 group-hover:h-2 group-hover:shadow-[0_0_30px_rgba(255,255,255,1)] transition-all duration-300"></div>
                             
-                            <!-- Label (Always visible + Arrow) -->
+                            <!-- Label -->
                             <div class="absolute top-full mt-0 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-50 flex flex-col items-center">
-                                <!-- <div class="w-0.5 h-4 bg-gold/50 mb-1"></div> Connectivity Line -->
                                 <div class="bg-black/90 text-gold text-xs px-3 py-1 rounded border border-gold/30 shadow-lg font-serif tracking-wide">
                                     <?php echo htmlspecialchars($artifact['name']); ?>
                                 </div>
@@ -169,12 +169,6 @@ Collect them all to gain knowledge and experience. Good luck!"><?php
                         </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
-            
-        <?php else: ?>
-            <div class="flex items-center justify-center h-full bg-gray-900 text-gray-500 flex-col">
-                <i class="fas fa-map-marked-alt text-6xl mb-4 text-gray-700"></i>
-                <p>Select a room from the sidebar to begin editing.</p>
             </div>
         <?php endif; ?>
     </main>
@@ -203,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let activeDrag = null;
     let initialX, initialY;
-    let initialLeft, initialTop;
     
     // Drag Logic
     draggables.forEach(el => {
@@ -212,20 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function startDrag(e) {
         activeDrag = this;
-        // Calculate initial mouse position relative to element
-        const rect = activeDrag.getBoundingClientRect();
-        
-        // We want to work with percentages for responsiveness
-        // But dragging is pixel-based.
-        
         initialX = e.clientX;
         initialY = e.clientY;
-        
-        // Get current computed style
-        const style = window.getComputedStyle(activeDrag);
-        // Parse left/top (which might be in px or %)
-        // For dragging simplicity, we'll convert to px, move, then save as % logic later?
-        // Actually, let's keep it simple.
         
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', endDrag);
@@ -239,20 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = e.clientX - initialX;
         const dy = e.clientY - initialY;
         
-        // Get current left/top in pixels
-        // Warning: activeDrag.style.left might be empty or %.
-        // offsetLeft gives px relative to offsetParent.
-        
         let newLeftCtx = activeDrag.offsetLeft + dx;
         let newTopCtx = activeDrag.offsetTop + dy;
         
-        // Boundaries
         const containerRect = container.getBoundingClientRect();
-        // Constrain
         newLeftCtx = Math.max(0, Math.min(newLeftCtx, containerRect.width - activeDrag.offsetWidth));
         newTopCtx = Math.max(0, Math.min(newTopCtx, containerRect.height - activeDrag.offsetHeight));
         
-        // Update position (temporarily in px)
         activeDrag.style.left = newLeftCtx + 'px';
         activeDrag.style.top = newTopCtx + 'px';
         
@@ -263,12 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function endDrag() {
         if (!activeDrag) return;
         
-        // Convert final position to percentages
         const containerRect = container.getBoundingClientRect();
         const leftPercent = (activeDrag.offsetLeft / containerRect.width) * 100;
         const topPercent = (activeDrag.offsetTop / containerRect.height) * 100;
         
-        // Apply % style
         activeDrag.style.left = leftPercent.toFixed(2) + '%';
         activeDrag.style.top = topPercent.toFixed(2) + '%';
         
@@ -278,50 +250,49 @@ document.addEventListener('DOMContentLoaded', () => {
         document.removeEventListener('mousemove', drag);
         document.removeEventListener('mouseup', endDrag);
         
-        // Show unsaved indicator?
-        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Positions *';
+        if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Positions *';
     }
     
     // Save Logic
-    saveBtn.addEventListener('click', () => {
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-        
-        const positions = [];
-        draggables.forEach(el => {
-            positions.push({
-                id: el.dataset.id,
-                top: el.style.top,
-                left: el.style.left
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+            
+            const positions = [];
+            draggables.forEach(el => {
+                positions.push({
+                    id: el.dataset.id,
+                    top: el.style.top,
+                    left: el.style.left
+                });
+            });
+            
+            fetch('../app/Handlers/save_artifact_position.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ positions: positions })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+                    setTimeout(() => {
+                        saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Positions';
+                        saveBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Error saving: ' + (data.message || 'Unknown error'));
+                    saveBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Request failed');
+                saveBtn.disabled = false;
             });
         });
-        
-        fetch('../app/Handlers/save_artifact_position.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ positions: positions })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
-                setTimeout(() => {
-                    saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Positions';
-                    saveBtn.disabled = false;
-                }, 2000);
-            } else {
-                alert('Error saving: ' + (data.message || 'Unknown error'));
-                saveBtn.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Request failed');
-            saveBtn.disabled = false;
-        });
-    });
+    }
     
     // Dialog Editor Toggle
     const toggleDialogsBtn = document.getElementById('btn-toggle-dialogs');
@@ -332,11 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleDialogsBtn && dialogEditor) {
         toggleDialogsBtn.addEventListener('click', () => {
             dialogEditor.classList.toggle('hidden');
-            if (dialogEditor.classList.contains('hidden')) {
-                toggleDialogsBtn.innerHTML = '<i class="fas fa-comments mr-2"></i> Edit Dialogs';
-            } else {
-                toggleDialogsBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Close Dialogs';
-            }
+            toggleDialogsBtn.innerHTML = dialogEditor.classList.contains('hidden') 
+                ? '<i class="fas fa-comments mr-2"></i> Edit Dialogs'
+                : '<i class="fas fa-times mr-2"></i> Close Dialogs';
         });
     }
     
@@ -351,9 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             fetch('../app/Handlers/admin_handler.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `action=save_room_dialogs&room_id=${roomId}&dialogs=${encodeURIComponent(JSON.stringify(lines))}`
             })
             .then(response => response.json())
@@ -395,9 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             fetch('../app/Handlers/admin_handler.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&')
             })
             .then(response => response.json())

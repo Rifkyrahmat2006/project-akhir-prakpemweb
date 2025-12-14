@@ -1,23 +1,23 @@
 <?php
-session_start();
-// Check Auth
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
-// Check room_id
+/**
+ * Quiz Page - Room quiz questions
+ * Uses Middleware for authentication and access control
+ */
+
+// Load bootstrap (includes all middleware, models, and database)
+require_once '../../app/bootstrap.php';
+
+// Require authentication
+requireAuth('../login.php');
+
+// Check room_id parameter
 if (!isset($_GET['room_id'])) {
     header("Location: index.php");
     exit();
 }
 
-// Database and Models
-require_once '../../app/Config/database.php';
-require_once '../../app/Models/Room.php';
-require_once '../../app/Models/Quiz.php';
-
 $room_id = intval($_GET['room_id']);
-$user_id = $_SESSION['user_id'];
+$user_id = userId();
 
 // Fetch Room Info using Model
 $room = Room::findById($conn, $room_id);
@@ -27,11 +27,8 @@ if (!$room) {
     exit();
 }
 
-// Check Access (Security)
-if ($_SESSION['level'] < $room['min_level']) {
-    header("Location: index.php");
-    exit();
-}
+// Check Access (Security) - Require minimum level
+requireLevel($room['min_level'], 'index.php');
 
 // Fetch Quizzes with user status
 $quizzes = Quiz::getForUser($conn, $room_id, $user_id);

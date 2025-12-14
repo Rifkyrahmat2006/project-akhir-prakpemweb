@@ -110,11 +110,58 @@ class User {
         $stmt->bind_param("ii", $newXp, $userId);
         $stmt->execute();
         
-        return [
+        // Get complete XP progress data for client
+        $progressData = self::getXpProgressData($newXp, $newLevel);
+        
+        return array_merge([
             'old_level' => $oldLevel,
             'new_level' => $newLevel,
             'new_xp' => $newXp,
             'leveled_up' => $newLevel > $oldLevel
+        ], $progressData);
+    }
+    
+    /**
+     * Calculate XP progress data for client-side display
+     * Centralizes all XP threshold and rank calculations
+     */
+    public static function getXpProgressData($xp, $level = null) {
+        if ($level === null) {
+            $level = self::calculateLevel($xp);
+        }
+        
+        // XP thresholds for each level
+        $xp_thresholds = [
+            1 => ['min' => 0, 'max' => 50],
+            2 => ['min' => 50, 'max' => 200],
+            3 => ['min' => 200, 'max' => 500],
+            4 => ['min' => 500, 'max' => 1000]
+        ];
+        
+        // Rank names for each level
+        $rank_names = [
+            1 => 'Visitor',
+            2 => 'Explorer',
+            3 => 'Historian',
+            4 => 'Royal Curator'
+        ];
+        
+        $current_threshold = $xp_thresholds[$level] ?? $xp_thresholds[1];
+        $xp_progress = 0;
+        
+        if ($level < 4) {
+            $range = $current_threshold['max'] - $current_threshold['min'];
+            $progress = $xp - $current_threshold['min'];
+            $xp_progress = $range > 0 ? min(100, max(0, ($progress / $range) * 100)) : 0;
+        } else {
+            $xp_progress = 100;
+        }
+        
+        return [
+            'xp_progress' => round($xp_progress, 2),
+            'rank_name' => $rank_names[$level] ?? 'Visitor',
+            'xp_for_next' => $current_threshold['max'],
+            'xp_for_current' => $current_threshold['min']
         ];
     }
     
@@ -178,5 +225,38 @@ class User {
         }
         // Generate initial avatar using UI Avatars service
         return 'https://ui-avatars.com/api/?name=' . urlencode($user['name'] ?? $user['username'] ?? 'User') . '&background=C5A059&color=000&size=128&font-size=0.5';
+    }
+    
+    /**
+     * Get dashboard statistics (for admin)
+     */
+    public static function getDashboardStats($conn) {
+        $stats = [];
+        
+        // Total visitors
+        $result = $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'visitor'");
+        $stats['total_visitors'] = $result->fetch_assoc()['count'];
+        
+        // Total artifacts
+        $result = $conn->query("SELECT COUNT(*) as count FROM artifacts");
+        $stats['total_artifacts'] = $result->fetch_assoc()['count'];
+        
+        // Total collections
+        $result = $conn->query("SELECT COUNT(*) as count FROM user_collections");
+        $stats['total_collections'] = $result->fetch_assoc()['count'];
+        
+        // Total quizzes answered
+        $result = $conn->query("SELECT COUNT(*) as count FROM user_quizzes");
+        $stats['total_quizzes_answered'] = $result->fetch_assoc()['count'];
+        
+        // Total hidden artifacts unlocked
+        $result = $conn->query("SELECT COUNT(*) as count FROM user_hidden_artifacts");
+        $stats['total_hidden_unlocked'] = $result->fetch_assoc()['count'];
+        
+        // Total rooms
+        $result = $conn->query("SELECT COUNT(*) as count FROM rooms");
+        $stats['total_rooms'] = $result->fetch_assoc()['count'];
+        
+        return $stats;
     }
 }

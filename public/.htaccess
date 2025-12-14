@@ -1,0 +1,12 @@
+# Enable URL Rewriting
+RewriteEngine On
+
+# Set base directory
+RewriteBase /project-akhir/public/
+
+# Don't rewrite if file or directory exists
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all requests to router.php
+RewriteRule ^(.*)$ router.php [QSA,L]

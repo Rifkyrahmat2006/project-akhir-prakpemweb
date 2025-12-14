@@ -1,12 +1,14 @@
 <?php
-session_start();
-require_once '../Config/database.php';
+/**
+ * Admin Handler - Handles all admin CRUD operations
+ * Uses Middleware for admin authentication
+ */
 
-// Security Check
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../../public/login.php");
-    exit();
-}
+// Load bootstrap
+require_once __DIR__ . '/../bootstrap.php';
+
+// Require admin access
+requireAdmin('../../public/login.php');
 
 if (isset($_REQUEST['action'])) {
     $action = $_REQUEST['action'];
