@@ -79,6 +79,10 @@ if ($new_level < 4) {
 }
 $rank_name = $rank_names[$new_level] ?? 'Visitor';
 
+// Get current collection count for room
+$collected_count = Room::getCollectedArtifactCount($conn, $room_id, $user_id);
+$total_artifacts = Room::getTotalArtifactCount($conn, $room_id);
+
 echo json_encode([
     'success' => true,
     'new_xp' => $new_xp,
@@ -88,7 +92,9 @@ echo json_encode([
     'rank_name' => $rank_name,
     'all_collected' => $all_collected,
     'room_id' => $room_id,
-    'hidden_artifact' => $hidden_artifact
+    'hidden_artifact' => $hidden_artifact,
+    'collected_count' => $collected_count,
+    'total_artifacts' => $total_artifacts
 ]);
 
 $conn->close();

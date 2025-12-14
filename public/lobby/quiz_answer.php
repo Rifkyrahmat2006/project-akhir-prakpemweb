@@ -135,7 +135,7 @@ include '../header.php';
                 <?php if ($hidden_unlocked && $hidden_artifact): ?>
                     <!-- Hidden Artifact Unlocked -->
                     <div class="mt-6 p-6 border-2 border-gold rounded-lg bg-gold/10 text-center">
-                        <h3 class="text-2xl text-gold font-serif mb-4">🎉 Secret Artifact Discovered!</h3>
+                        <h3 class="text-2xl text-gold font-serif mb-4">Secret Artifact Discovered!</h3>
                         <?php if ($hidden_artifact['image']): ?>
                             <img src="<?php echo $hidden_artifact['image']; ?>" class="h-24 mx-auto mb-4">
                         <?php endif; ?>

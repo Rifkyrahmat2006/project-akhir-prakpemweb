@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../Config/database.php';
+require_once '../Models/User.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = $_POST['action'];
@@ -30,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Create User
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (username, password, role, level, xp) VALUES (?, ?, 'visitor', 1, 0)");
+        $stmt = $conn->prepare("INSERT INTO users (username, password, role, xp) VALUES (?, ?, 'visitor', 0)");
         $stmt->bind_param("ss", $username, $hashed_password);
 
         if ($stmt->execute()) {
@@ -44,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT id, username, password, level, role, xp FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, role, xp FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -52,10 +53,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
+                // Calculate level from XP
+                $calculated_level = User::calculateLevel($user['xp']);
+                
                 // Set Session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['level'] = $user['level'];
+                $_SESSION['level'] = $calculated_level;
                 $_SESSION['xp'] = $user['xp'];
                 $_SESSION['role'] = $user['role'];
 

@@ -152,4 +152,26 @@ class Room {
         $stmt->bind_param("sssii", $name, $desc, $image, $xp, $roomId);
         return $stmt->execute();
     }
+    
+    /**
+     * Get total artifact count in a room
+     */
+    public static function getTotalArtifactCount($conn, $roomId) {
+        $stmt = $conn->prepare("SELECT COUNT(*) as total FROM artifacts WHERE room_id = ?");
+        $stmt->bind_param("i", $roomId);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['total'] ?? 0;
+    }
+    
+    /**
+     * Get collected artifact count for a user in a room
+     */
+    public static function getCollectedArtifactCount($conn, $roomId, $userId) {
+        $stmt = $conn->prepare("SELECT COUNT(*) as collected FROM user_collections uc JOIN artifacts a ON uc.artifact_id = a.id WHERE a.room_id = ? AND uc.user_id = ?");
+        $stmt->bind_param("ii", $roomId, $userId);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['collected'] ?? 0;
+    }
 }

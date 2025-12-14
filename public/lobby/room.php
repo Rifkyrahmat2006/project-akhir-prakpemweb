@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Room Progress Pill -->
         <div class="flex items-center gap-2 bg-black/50 border border-gray-700 rounded-full px-4 py-2">
             <i class="fas fa-gem text-gold"></i>
-            <span class="text-white text-sm"><?php echo $collected_count; ?>/<?php echo $total_artifacts; ?></span>
+            <span id="artifact-counter" class="text-white text-sm"><?php echo $collected_count; ?>/<?php echo $total_artifacts; ?></span>
         </div>
     </div>
     
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Congrats messages
     const congratsMessages = [
-        "🎉 Incredible work, young explorer!",
+        "Incredible work, young explorer!",
         "You have successfully collected all <?php echo $total_artifacts; ?> artifacts in the <?php echo addslashes($room['name']); ?>!",
         "But wait... I sense something else hidden in this chamber...",
         "An ancient chest containing a mysterious artifact! Its name remains unknown...",
@@ -1130,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pin = generatePin();
             window.currentPin = pin;
             
-            typeQuizText(`🎉 Excellent! You got ${correctAnswers}/${quizQuestions.length} correct! A secret 4-digit code has been hidden somewhere in this chamber. Find it and enter it to claim your reward!`, () => {
+            typeQuizText(`Excellent! You got ${correctAnswers}/${quizQuestions.length} correct! A secret 4-digit code has been hidden somewhere in this chamber. Find it and enter it to claim your reward!`, () => {
                 // Mark chest as collectible (not yet unlocked)
                 if (hiddenChest) {
                     hiddenChest.dataset.collectible = 'true';
@@ -1311,7 +1311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 // Show success message
-                showSuccessModal('🎉 Congratulations!', 'You have collected the hidden artifact!');
+                showSuccessModal('Congratulations!', 'You have collected the hidden artifact!');
             }
         } catch (error) {
             console.error('Failed to unlock artifact:', error);

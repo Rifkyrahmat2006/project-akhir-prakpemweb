@@ -1,5 +1,5 @@
 <!-- Collection Modal (Hidden by default) -->
-<div id="collect-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
+<div id="collect-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
     <div class="relative px-20 py-12 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[550px] min-h-[650px] flex flex-col items-center justify-center" id="modal-content" style="background-image: url('/project-akhir/public/assets/img/elements/old-paper.png');">
         
         <!-- Close X Button (Top Right - Inside paper) -->
@@ -187,6 +187,12 @@
                     
                     closeModal();
                     
+                    // Update artifact counter
+                    const counterEl = document.getElementById('artifact-counter');
+                    if (counterEl && data.collected_count !== undefined && data.total_artifacts !== undefined) {
+                        counterEl.textContent = data.collected_count + '/' + data.total_artifacts;
+                    }
+                    
                     // Check if all artifacts are now collected
                     if (data.all_collected) {
                         // Store hidden artifact data for the chest
@@ -200,7 +206,7 @@
                                 window.showCongratsModal();
                             } else {
                                 // Fallback if function not found
-                                alert('🎉 Congratulations! You collected all artifacts! Look for the hidden chest!');
+                                alert('Congratulations! You collected all artifacts! Look for the hidden chest!');
                                 if (typeof window.showHiddenChest === 'function') {
                                     window.showHiddenChest();
                                 }
@@ -218,7 +224,7 @@
                     // Handle level up
                     if (data.leveled_up) {
                         setTimeout(() => {
-                            alert(`🎉 LEVEL UP! You are now Level ${data.new_level}!`);
+                            alert(`LEVEL UP! You are now Level ${data.new_level}!`);
                         }, 100);
                     }
                 } else {

@@ -155,7 +155,7 @@ include '../header.php';
                     </div>
                 </div>
                 <script>
-                    const completionText = "<?php echo $hidden_unlocked ? '🎉 Outstanding! You have mastered this chamber and unlocked its secrets!' : '🎉 Excellent work! You have completed all ' . $total_count . ' questions in this chamber!'; ?>";
+                    const completionText = "<?php echo $hidden_unlocked ? 'Outstanding! You have mastered this chamber and unlocked its secrets!' : 'Excellent work! You have completed all ' . $total_count . ' questions in this chamber!'; ?>";
                 </script>
             <?php else: ?>
                 <!-- Current Quiz -->
