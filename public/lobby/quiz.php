@@ -33,183 +33,220 @@ if ($_SESSION['level'] < $room['min_level']) {
     exit();
 }
 
-// Fetch Quizzes with user status using Model
-$raw_quizzes = Quiz::getForUser($conn, $room_id, $user_id);
+// Fetch Quizzes with user status
+$quizzes = Quiz::getForUser($conn, $room_id, $user_id);
 
-$quizzes = [];
+// Find first unanswered quiz
+$current_quiz = null;
+$current_index = 0;
 $answered_count = 0;
-$total_count = 0;
-foreach ($raw_quizzes as $row) {
-    $row['is_answered'] = $row['is_answered'] > 0;
-    if ($row['is_answered']) $answered_count++;
-    $total_count++;
-    $quizzes[] = $row;
+$total_count = count($quizzes);
+
+foreach ($quizzes as $index => $q) {
+    if ($q['is_answered'] > 0) {
+        $answered_count++;
+    } else if ($current_quiz === null) {
+        $current_quiz = $q;
+        $current_index = $index;
+    }
+}
+
+// Check if all quizzes completed
+$all_completed = ($answered_count >= $total_count && $total_count > 0);
+
+// Calculate progress
+$progress = $total_count > 0 ? ($answered_count / $total_count) * 100 : 0;
+
+// Check if hidden artifact is unlocked for this room
+$hidden_unlocked = Room::isHiddenArtifactUnlocked($conn, $room_id, $user_id);
+
+// Get next room info (id + 1)
+$next_room = null;
+if ($hidden_unlocked) {
+    $next_room = Room::findById($conn, $room_id + 1);
+    // Check if user has access (level requirement)
+    if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
+        $next_room = null; // Don't show if user doesn't have access yet
+    }
 }
 
 include '../header.php';
-include '../navbar.php';
 ?>
 
-<div class="flex-grow container mx-auto px-4 py-8">
-    <!-- Back Button & Title -->
-    <div class="flex items-center gap-4 mb-8">
-        <a href="room.php?id=<?php echo $room_id; ?>" class="btn-museum bg-gray-800 text-white border-gray-600 hover:bg-gold hover:text-black">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Room
-        </a>
-        <div>
-            <h1 class="text-3xl text-gold font-serif"><?php echo $room['name']; ?> Quiz</h1>
-            <p class="text-gray-400 text-sm">Test your knowledge and earn XP!</p>
-        </div>
-    </div>
+<style>
+    .quiz-option {
+        transition: all 0.2s ease;
+    }
+    .quiz-option:hover {
+        transform: translateY(-2px);
+        border-color: #C5A059;
+        background: rgba(197, 160, 89, 0.1);
+    }
+    .typewriter-cursor {
+        animation: blink 0.7s infinite;
+    }
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+</style>
 
-    <!-- Progress -->
-    <div class="mb-8 p-4 bg-gray-900 rounded-lg border border-gray-700">
-        <div class="flex justify-between items-center mb-2">
-            <span class="text-gray-400 text-sm">Progress</span>
-            <span class="text-gold text-sm"><?php echo $answered_count; ?>/<?php echo $total_count; ?> Completed</span>
-        </div>
-        <div class="w-full bg-gray-800 rounded-full h-2">
-            <div class="bg-gold h-2 rounded-full transition-all duration-500" style="width: <?php echo $total_count > 0 ? ($answered_count / $total_count * 100) : 0; ?>%"></div>
-        </div>
-    </div>
+<div class="min-h-screen bg-black text-gray-200 flex flex-col">
+    <!-- Background -->
+    <div class="fixed inset-0 z-0 bg-cover bg-center opacity-30" style="background-image: url('<?php echo $room['image_url']; ?>');"></div>
+    
+    <!-- Back Button -->
+    <a href="room.php?id=<?php echo $room_id; ?>" class="fixed top-6 left-6 z-50 text-gold hover:text-white uppercase tracking-widest text-sm">
+        <i class="fas fa-arrow-left mr-2"></i> Return to Room
+    </a>
 
-    <?php if (empty($quizzes)): ?>
-        <div class="text-center py-20 bg-gray-900/50 rounded-lg border border-dashed border-gray-700">
-            <i class="fas fa-question-circle text-6xl text-gray-700 mb-4"></i>
-            <h3 class="text-xl text-gray-400 mb-2">No Quizzes Available</h3>
-            <p class="text-gray-600">This room doesn't have any quizzes yet.</p>
+    <!-- Main Content -->
+    <div class="flex-grow relative z-10 flex flex-col justify-end">
+        
+        <!-- Professor Container - Same size as room.php intro -->
+        <div class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-40 pointer-events-none flex items-end">
+            <img id="prof-talking" src="/project-akhir/public/assets/img/professor.gif" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+            <img id="prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
-    <?php else: ?>
-        <div class="space-y-6">
-            <?php foreach ($quizzes as $index => $quiz): ?>
-                <?php $is_answered = $quiz['is_answered']; ?>
-                <div class="quiz-card museum-card p-6 rounded-lg <?php echo $is_answered ? 'opacity-60' : ''; ?>" 
-                     data-quiz-id="<?php echo $quiz['id']; ?>"
-                     data-answered="<?php echo $is_answered ? 'true' : 'false'; ?>">
-                    
-                    <div class="flex items-start gap-4">
-                        <!-- Question Number -->
-                        <div class="w-10 h-10 rounded-full <?php echo $is_answered ? 'bg-green-900 border-green-500' : 'bg-gray-800 border-gold'; ?> border flex items-center justify-center flex-shrink-0">
-                            <?php if ($is_answered): ?>
-                                <i class="fas fa-check text-green-500"></i>
-                            <?php else: ?>
-                                <span class="text-gold font-bold"><?php echo $index + 1; ?></span>
+
+        <!-- Dialogue Box -->
+        <div class="relative w-full bg-black/95 border-t-2 border-gold z-30 p-6 pb-8 md:pl-[350px]">
+            <!-- Name Tag -->
+            <div class="absolute -top-8 left-6 md:left-[350px] bg-gold text-black px-4 py-1 font-serif font-bold text-lg rounded-t shadow-[0_0_15px_rgba(197,160,89,0.5)]">
+                Professor Aldric
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gray-800">
+                <div class="h-full bg-gold transition-all duration-500" style="width: <?php echo $progress; ?>%"></div>
+            </div>
+
+            <?php if ($total_count == 0): ?>
+                <!-- No Quizzes -->
+                <div class="text-center py-8">
+                    <p class="font-serif text-xl text-gray-400">There are no quizzes available for this room yet.</p>
+                    <a href="room.php?id=<?php echo $room_id; ?>" class="inline-block mt-4 btn-museum bg-gold text-black">Return to Room</a>
+                </div>
+            <?php elseif ($all_completed): ?>
+                <!-- All Completed - Fixed height container -->
+                <div class="py-4 min-h-[150px]">
+                    <p id="typewriter-text" class="font-serif text-xl md:text-2xl text-gray-200 mb-6"></p>
+                    <div id="completion-content" class="min-h-[60px]" style="opacity: 0; transition: opacity 0.3s ease;">
+                        <div class="flex items-center gap-4 text-gold mb-6">
+                            <i class="fas fa-trophy text-3xl"></i>
+                            <span class="text-lg">Quiz Complete: <?php echo $answered_count; ?>/<?php echo $total_count; ?></span>
+                            <?php if ($hidden_unlocked): ?>
+                                <span class="text-green-500 ml-4"><i class="fas fa-gem mr-1"></i> Hidden Artifact Unlocked!</span>
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Question Content -->
-                        <div class="flex-grow">
-                            <h3 class="text-lg text-white mb-4"><?php echo htmlspecialchars($quiz['question']); ?></h3>
+                        <!-- Navigation Buttons -->
+                        <div class="flex flex-wrap gap-4">
+                            <a href="room.php?id=<?php echo $room_id; ?>" class="btn-museum bg-gray-800 text-white border-gray-600 hover:bg-gold hover:text-black">
+                                <i class="fas fa-door-open mr-2"></i> Return to Room
+                            </a>
                             
-                            <?php if (!$is_answered): ?>
-                                <div class="quiz-options space-y-3">
-                                    <label class="quiz-option block cursor-pointer group">
-                                        <input type="radio" name="quiz_<?php echo $quiz['id']; ?>" value="a" class="hidden">
-                                        <div class="p-3 border border-gray-700 rounded-lg bg-gray-800/50 group-hover:border-gold transition flex items-center gap-3">
-                                            <span class="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-sm text-gray-400 group-hover:border-gold group-hover:text-gold transition">A</span>
-                                            <span class="text-gray-300"><?php echo htmlspecialchars($quiz['option_a']); ?></span>
-                                        </div>
-                                    </label>
-                                    <label class="quiz-option block cursor-pointer group">
-                                        <input type="radio" name="quiz_<?php echo $quiz['id']; ?>" value="b" class="hidden">
-                                        <div class="p-3 border border-gray-700 rounded-lg bg-gray-800/50 group-hover:border-gold transition flex items-center gap-3">
-                                            <span class="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-sm text-gray-400 group-hover:border-gold group-hover:text-gold transition">B</span>
-                                            <span class="text-gray-300"><?php echo htmlspecialchars($quiz['option_b']); ?></span>
-                                        </div>
-                                    </label>
-                                    <label class="quiz-option block cursor-pointer group">
-                                        <input type="radio" name="quiz_<?php echo $quiz['id']; ?>" value="c" class="hidden">
-                                        <div class="p-3 border border-gray-700 rounded-lg bg-gray-800/50 group-hover:border-gold transition flex items-center gap-3">
-                                            <span class="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-sm text-gray-400 group-hover:border-gold group-hover:text-gold transition">C</span>
-                                            <span class="text-gray-300"><?php echo htmlspecialchars($quiz['option_c']); ?></span>
-                                        </div>
-                                    </label>
-                                </div>
-                                
-                                <button class="btn-submit-quiz btn-museum mt-4" data-quiz-id="<?php echo $quiz['id']; ?>">
-                                    Submit Answer
-                                </button>
-                            <?php else: ?>
-                                <div class="flex items-center gap-2 text-green-500 text-sm">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Already answered (+<?php echo $quiz['xp_reward']; ?> XP)</span>
-                                </div>
+                            <?php if ($next_room): ?>
+                                <a href="room.php?id=<?php echo $next_room['id']; ?>" class="btn-museum bg-gold text-black hover:bg-white">
+                                    <i class="fas fa-arrow-right mr-2"></i> Next: <?php echo htmlspecialchars($next_room['name']); ?>
+                                </a>
                             <?php endif; ?>
-                        </div>
-                        
-                        <!-- XP Badge -->
-                        <div class="text-right flex-shrink-0">
-                            <span class="text-xs text-gray-500 uppercase tracking-wider">Reward</span>
-                            <div class="text-gold font-bold">+<?php echo $quiz['xp_reward']; ?> XP</div>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+                <script>
+                    const completionText = "<?php echo $hidden_unlocked ? '🎉 Outstanding! You have mastered this chamber and unlocked its secrets!' : '🎉 Excellent work! You have completed all ' . $total_count . ' questions in this chamber!'; ?>";
+                </script>
+            <?php else: ?>
+                <!-- Current Quiz -->
+                <div class="py-2">
+                    <!-- Question Number -->
+                    <div class="text-gold text-sm uppercase tracking-widest mb-2">
+                        Question <?php echo $current_index + 1; ?> of <?php echo $total_count; ?>
+                    </div>
+                    
+                    <!-- Question Text (Typewriter) -->
+                    <p id="typewriter-text" class="font-serif text-xl md:text-2xl text-gray-200 mb-6">
+                        <span class="typewriter-cursor text-gold">|</span>
+                    </p>
+                    
+                    <!-- Answer Options Container - min-height prevents layout jump -->
+                    <div class="min-h-[80px]">
+                        <div id="answer-options" class="grid grid-cols-1 md:grid-cols-3 gap-4" style="opacity: 0; visibility: hidden; transition: opacity 0.3s ease;">
+                            <?php foreach (['a', 'b', 'c'] as $opt): ?>
+                                <a href="quiz_answer.php?room_id=<?php echo $room_id; ?>&quiz_id=<?php echo $current_quiz['id']; ?>&answer=<?php echo $opt; ?>" 
+                                   class="quiz-option block p-4 border border-gray-700 rounded bg-gray-900/80 text-left text-gray-200 hover:text-white cursor-pointer shadow-lg">
+                                    <span class="text-gold font-bold mr-2 uppercase text-xl"><?php echo strtoupper($opt); ?>.</span>
+                                    <span class="text-lg"><?php echo htmlspecialchars($current_quiz['option_' . $opt]); ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    const questionText = <?php echo json_encode($current_quiz['question']); ?>;
+                </script>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Handle option selection visual feedback
-    document.querySelectorAll('.quiz-option input').forEach(input => {
-        input.addEventListener('change', function() {
-            const card = this.closest('.quiz-card');
-            card.querySelectorAll('.quiz-option > div').forEach(opt => {
-                opt.classList.remove('border-gold', 'bg-gold/10');
-                opt.classList.add('border-gray-700');
-            });
-            this.nextElementSibling.classList.remove('border-gray-700');
-            this.nextElementSibling.classList.add('border-gold', 'bg-gold/10');
-        });
-    });
-
-    // Handle submit
-    document.querySelectorAll('.btn-submit-quiz').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const quizId = this.dataset.quizId;
-            const card = this.closest('.quiz-card');
-            const selected = card.querySelector(`input[name="quiz_${quizId}"]:checked`);
-            
-            if (!selected) {
-                alert('Please select an answer!');
-                return;
+    const profTalking = document.getElementById('prof-talking');
+    const profIdle = document.getElementById('prof-idle');
+    const typewriterEl = document.getElementById('typewriter-text');
+    const answerOptions = document.getElementById('answer-options');
+    const completionContent = document.getElementById('completion-content');
+    
+    function setProfessorState(isTalking) {
+        if (profTalking && profIdle) {
+            if (isTalking) {
+                profTalking.classList.remove('hidden');
+                profIdle.classList.add('hidden');
+            } else {
+                profTalking.classList.add('hidden');
+                profIdle.classList.remove('hidden');
             }
-
-            const formData = new FormData();
-            formData.append('quiz_id', quizId);
-            formData.append('answer', selected.value);
-
-            fetch('../../app/Handlers/quiz_submit.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.correct) {
-                        alert(`Correct! +${data.xp_reward} XP`);
-                        if (data.leveled_up) {
-                            alert(`LEVEL UP! You are now Level ${data.new_level}`);
-                        }
-                    } else {
-                        alert('Incorrect answer. Better luck next time!');
-                    }
-                    
-                    // Check for hidden artifact unlock
-                    if (data.hidden_artifact_unlocked && data.hidden_artifact) {
-                        alert(`HIDDEN ARTIFACT UNLOCKED!\n\n"${data.hidden_artifact.name}"\n\n${data.hidden_artifact.desc}\n\n+${data.hidden_artifact.xp} Bonus XP!`);
-                    }
-                    
-                    location.reload(); // Reload to update UI
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(err => console.error(err));
+        }
+    }
+    
+    function typeText(text, callback) {
+        if (!typewriterEl) return;
+        
+        setProfessorState(true);
+        typewriterEl.innerHTML = '';
+        let i = 0;
+        const speed = 25;
+        
+        const interval = setInterval(() => {
+            if (i < text.length) {
+                typewriterEl.innerHTML = text.substring(0, i + 1) + '<span class="typewriter-cursor text-gold">|</span>';
+                i++;
+            } else {
+                clearInterval(interval);
+                typewriterEl.innerHTML = text;
+                setProfessorState(false);
+                if (callback) callback();
+            }
+        }, speed);
+    }
+    
+    // Start animation
+    if (typeof questionText !== 'undefined' && questionText) {
+        typeText(questionText, () => {
+            if (answerOptions) {
+                answerOptions.style.opacity = '1';
+                answerOptions.style.visibility = 'visible';
+            }
         });
-    });
+    } else if (typeof completionText !== 'undefined' && completionText) {
+        typeText(completionText, () => {
+            if (completionContent) {
+                completionContent.style.opacity = '1';
+            }
+        });
+    }
 });
 </script>
-
 

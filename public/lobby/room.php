@@ -76,6 +76,15 @@ if ($hidden_artifact) {
     $hidden_artifact['unlocked'] = $hidden_artifact_unlocked;
 }
 
+// Get next room info for navigation arrow
+$next_room = null;
+if ($hidden_artifact_unlocked) {
+    $next_room = Room::findById($conn, $room_id + 1);
+    if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
+        $next_room = null; // Access check, though usually if they finished this room they might be close
+    }
+}
+
 // Clean description for JS usage
 $desc = addslashes($room['description']);
 $room_name = addslashes($room['name']);
@@ -240,12 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
          data-artifact-desc="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['description']) : 'A mysterious artifact awaits...'; ?>"
          data-artifact-image="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['image']) : ''; ?>"
          data-unlocked="<?php echo $hidden_artifact_unlocked ? 'true' : 'false'; ?>">
-        <!-- Chest Glow -->
-        <div class="absolute inset-[-15px] rounded-lg bg-amber-400/40 blur-xl animate-pulse"></div>
-        <div class="absolute inset-[-8px] rounded-lg bg-yellow-300/50 blur-md"></div>
+        <!-- Chest Glow (Reduced Intensity & Softened) -->
+        <div class="absolute inset-0 rounded-full bg-amber-400/20 blur-xl animate-pulse"></div>
+        <div class="absolute inset-1 rounded-full bg-yellow-300/30 blur-lg"></div>
         <!-- Chest Image -->
         <img src="/project-akhir/public/assets/img/artifacts/chest.png" alt="Hidden Chest" 
-             class="relative z-10 w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]">
+             class="relative z-10 w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]">
     </div>
     
     <!-- Mystery Artifact Modal (Shows when chest is clicked) -->

@@ -122,7 +122,7 @@ class User {
      * Get all users (for admin)
      */
     public static function getAll($conn) {
-        $result = $conn->query("SELECT id, name, email, xp, role, created_at FROM users ORDER BY created_at DESC");
+        $result = $conn->query("SELECT id, name, email, xp, role, avatar, created_at FROM users ORDER BY created_at DESC");
         $users = [];
         while ($row = $result->fetch_assoc()) {
             $row['level'] = self::calculateLevel($row['xp']);
@@ -159,5 +159,24 @@ class User {
             'quizzes_completed' => $quizzes,
             'hidden_artifacts' => $hidden
         ];
+    }
+    /**
+     * Update user avatar
+     */
+    public static function updateAvatar($conn, $userId, $avatarPath) {
+        $stmt = $conn->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+        $stmt->bind_param("si", $avatarPath, $userId);
+        return $stmt->execute();
+    }
+
+    /**
+     * Get avatar URL or default
+     */
+    public static function getAvatarUrl($user) {
+        if (!empty($user['avatar'])) {
+            return $user['avatar'];
+        }
+        // Generate initial avatar using UI Avatars service
+        return 'https://ui-avatars.com/api/?name=' . urlencode($user['name'] ?? $user['username'] ?? 'User') . '&background=C5A059&color=000&size=128&font-size=0.5';
     }
 }
