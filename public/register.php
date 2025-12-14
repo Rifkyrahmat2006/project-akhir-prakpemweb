@@ -5,13 +5,21 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 include 'header.php';
-include 'navbar.php';
 ?>
 
-<div class="flex-grow flex items-center justify-center relative py-20 px-4">
-    <div class="absolute inset-0 z-0 bg-cover bg-center opacity-10" style="background-image: url('https://images.unsplash.com/photo-1545648507-ca9043228c2c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');"></div>
+<div class="flex-grow flex items-center justify-center relative py-20 px-4 overflow-hidden">
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+        <source src="/project-akhir/public/assets/img/endless-login.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 z-0 bg-black/50"></div>
     
-    <div class="w-full max-w-md bg-dark-bg/90 p-8 border border-gold/30 shadow-2xl relative z-10 backdrop-blur-sm">
+    <!-- Back Button -->
+    <a href="index.php" class="absolute top-6 left-6 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/50 border border-gold/30 text-gold hover:bg-gold hover:text-black transition-all duration-300">
+        <i class="fas fa-arrow-left text-lg"></i>
+    </a>
+    
+    <div class="w-full max-w-md bg-dark-bg/60 p-8 border border-gold/30 shadow-2xl relative z-10 backdrop-blur-xl">
         <div class="text-center mb-8">
             <h2 class="text-3xl text-gold mb-2">Become a Member</h2>
             <p class="text-gray-500 text-sm italic">Begin your journey as a Visitor.</p>
@@ -61,4 +69,21 @@ include 'navbar.php';
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<script>
+// Stop video when leaving the page
+const bgVideo = document.querySelector('video');
+if (bgVideo) {
+    window.addEventListener('beforeunload', () => {
+        bgVideo.pause();
+        bgVideo.src = '';
+    });
+    
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            bgVideo.pause();
+        } else {
+            bgVideo.play();
+        }
+    });
+}
+</script>

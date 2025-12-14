@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Play room music
     if (roomMusic) {
-        roomMusic.volume = 0.3; // 30% volume
+        roomMusic.volume = 0.8;
         
         const playPromise = roomMusic.play();
         if (playPromise !== undefined) {
@@ -321,6 +321,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <button id="quiz-skip" class="text-gray-500 hover:text-white text-sm uppercase tracking-wider">
                     Abort Quiz <i class="fas fa-times ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden PIN Display (Appears randomly in room after quiz passed) -->
+    <div id="pin-display" class="absolute z-30 hidden pointer-events-none select-none"
+         style="font-family: 'Courier New', monospace;">
+        <span id="pin-code" class="text-gray-100/40 text-sm font-bold tracking-[0.3em]" style="text-shadow: none;">0000</span>
+    </div>
+    
+    <!-- PIN Input Modal (Card Paper Design) -->
+    <div id="pin-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
+        <div class="relative px-12 py-10 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[400px] min-h-[450px] flex flex-col items-center justify-center" id="pin-content" style="background-image: url('/project-akhir/public/assets/img/elements/old-paper.png');">
+            
+            <!-- Close X Button -->
+            <button id="pin-close" class="absolute top-8 right-8 w-8 h-8 flex items-center justify-center rounded-full bg-amber-900/30 hover:bg-amber-900/50 text-amber-900 hover:text-amber-800 text-lg font-bold transition-all z-20">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Content -->
+            <div class="relative z-10 max-w-[300px] mx-auto">
+                <div class="mb-3">
+                    <i class="fas fa-key text-4xl text-amber-700"></i>
+                </div>
+                <h3 class="text-xl text-amber-900 font-serif font-bold mb-2 drop-shadow-sm">Enter Secret PIN</h3>
+                <p class="text-amber-800 mb-6 text-sm" style="font-family: 'Garamond', 'Georgia', serif;">
+                    A mystical 4-digit code is hidden somewhere in this chamber. Find it to unlock the artifact!
+                </p>
+                
+                <!-- PIN Input Boxes -->
+                <div class="flex justify-center gap-3 mb-6">
+                    <input type="text" maxlength="1" class="pin-input w-12 h-14 text-center text-2xl font-bold bg-amber-100/80 border-2 border-amber-700 rounded-lg text-amber-900 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/50" data-index="0">
+                    <input type="text" maxlength="1" class="pin-input w-12 h-14 text-center text-2xl font-bold bg-amber-100/80 border-2 border-amber-700 rounded-lg text-amber-900 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/50" data-index="1">
+                    <input type="text" maxlength="1" class="pin-input w-12 h-14 text-center text-2xl font-bold bg-amber-100/80 border-2 border-amber-700 rounded-lg text-amber-900 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/50" data-index="2">
+                    <input type="text" maxlength="1" class="pin-input w-12 h-14 text-center text-2xl font-bold bg-amber-100/80 border-2 border-amber-700 rounded-lg text-amber-900 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/50" data-index="3">
+                </div>
+                
+                <!-- Error Message -->
+                <div id="pin-error" class="text-red-700 text-sm mb-4 hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Incorrect PIN. Try again!
+                </div>
+                
+                <!-- Submit Button -->
+                <button id="pin-submit" class="bg-amber-800 hover:bg-amber-900 text-amber-100 font-bold py-2 px-8 text-sm rounded-lg transition shadow-lg">
+                    <i class="fas fa-unlock mr-2"></i> Unlock Artifact
                 </button>
             </div>
         </div>
@@ -790,9 +836,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!chest) return;
         
         const unlocked = chest.dataset.unlocked === 'true';
+        const collectible = chest.dataset.collectible === 'true';
         
         if (unlocked) {
-            // Already unlocked - show actual artifact
+            // Already unlocked/collected - show actual artifact
             mysteryTitle.textContent = chest.dataset.artifactName;
             mysteryDesc.textContent = chest.dataset.artifactDesc;
             if (chest.dataset.artifactImage) {
@@ -801,22 +848,32 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryCollect.innerHTML = '<i class="fas fa-check mr-2"></i> Already Collected!';
             mysteryCollect.disabled = true;
             mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            mysteryModal.classList.remove('hidden');
+            setTimeout(() => {
+                mysteryModal.classList.remove('opacity-0');
+                mysteryContent.classList.remove('scale-90');
+                mysteryContent.classList.add('scale-100');
+            }, 10);
+        } else if (collectible) {
+            // Passed quiz, needs PIN to collect - show PIN modal
+            showPinModal();
         } else {
-            // Not unlocked - show mystery
+            // Not unlocked - show mystery modal for quiz
             mysteryTitle.textContent = '??? Unknown Artifact ???';
             mysteryDesc.textContent = 'This ancient artifact remains shrouded in mystery. Only those who prove their knowledge can unlock its secrets...';
             mysteryImageContainer.innerHTML = '<i class="fas fa-question"></i>';
             mysteryCollect.innerHTML = '<i class="fas fa-key mr-2"></i> Collect?';
             mysteryCollect.disabled = false;
             mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            mysteryModal.classList.remove('hidden');
+            setTimeout(() => {
+                mysteryModal.classList.remove('opacity-0');
+                mysteryContent.classList.remove('scale-90');
+                mysteryContent.classList.add('scale-100');
+            }, 10);
         }
-        
-        mysteryModal.classList.remove('hidden');
-        setTimeout(() => {
-            mysteryModal.classList.remove('opacity-0');
-            mysteryContent.classList.remove('scale-90');
-            mysteryContent.classList.add('scale-100');
-        }, 10);
     }
     
     // "Find The Chest!" button handler
@@ -1021,9 +1078,22 @@ document.addEventListener('DOMContentLoaded', () => {
         quizOptionsContainer.classList.add('hidden');
         
         if (passed) {
-            typeQuizText(`🎉 Excellent! You got ${correctAnswers}/${quizQuestions.length} correct! The hidden artifact is now unlocked! Click the chest again to collect it.`, () => {
-                // Unlock the artifact via API
-                unlockHiddenArtifact();
+            // Generate random 4-digit PIN
+            const pin = generatePin();
+            window.currentPin = pin;
+            
+            typeQuizText(`🎉 Excellent! You got ${correctAnswers}/${quizQuestions.length} correct! A secret 4-digit code has been hidden somewhere in this chamber. Find it and enter it to claim your reward!`, () => {
+                // Mark chest as collectible (not yet unlocked)
+                if (hiddenChest) {
+                    hiddenChest.dataset.collectible = 'true';
+                }
+                
+                // Show PIN somewhere random in the room
+                showPinInRoom(pin);
+                
+                setTimeout(() => {
+                    quizDialogueModal.classList.add('hidden');
+                }, 2000);
             });
         } else {
             typeQuizText(`😔 You got ${correctAnswers}/${quizQuestions.length} correct. You need at least 50% to unlock the artifact. Don't give up! Try again!`, () => {
@@ -1034,7 +1104,141 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Unlock hidden artifact API call
+    // Generate random 4-digit PIN
+    function generatePin() {
+        return String(Math.floor(1000 + Math.random() * 9000));
+    }
+    
+    // Show PIN somewhere random in the room
+    function showPinInRoom(pin) {
+        const pinDisplay = document.getElementById('pin-display');
+        const pinCode = document.getElementById('pin-code');
+        
+        if (pinDisplay && pinCode) {
+            // Random position: 10-80% left, 20-70% top (avoid edges and overlap with UI)
+            const randomLeft = Math.floor(10 + Math.random() * 70);
+            const randomTop = Math.floor(20 + Math.random() * 50);
+            
+            pinDisplay.style.left = randomLeft + '%';
+            pinDisplay.style.top = randomTop + '%';
+            pinCode.textContent = pin;
+            
+            pinDisplay.classList.remove('hidden');
+            pinDisplay.style.animation = 'fadeInUp 0.5s ease-out forwards';
+        }
+    }
+    
+    // PIN Modal Elements
+    const pinModal = document.getElementById('pin-modal');
+    const pinContent = document.getElementById('pin-content');
+    const pinClose = document.getElementById('pin-close');
+    const pinSubmit = document.getElementById('pin-submit');
+    const pinError = document.getElementById('pin-error');
+    const pinInputs = document.querySelectorAll('.pin-input');
+    
+    // Show PIN modal
+    function showPinModal() {
+        // Clear previous inputs
+        pinInputs.forEach(input => {
+            input.value = '';
+        });
+        pinError.classList.add('hidden');
+        
+        pinModal.classList.remove('hidden');
+        setTimeout(() => {
+            pinModal.classList.remove('opacity-0');
+            pinContent.classList.remove('scale-90');
+            pinContent.classList.add('scale-100');
+            // Focus first input
+            if (pinInputs[0]) pinInputs[0].focus();
+        }, 10);
+    }
+    
+    // Close PIN modal
+    function closePinModal() {
+        pinModal.classList.add('opacity-0');
+        pinContent.classList.remove('scale-100');
+        pinContent.classList.add('scale-90');
+        setTimeout(() => pinModal.classList.add('hidden'), 300);
+    }
+    
+    // PIN input handling - auto-focus next input
+    pinInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            // Only allow digits
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
+            if (e.target.value && index < pinInputs.length - 1) {
+                pinInputs[index + 1].focus();
+            }
+        });
+        
+        input.addEventListener('keydown', (e) => {
+            // Handle backspace to go to previous input
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                pinInputs[index - 1].focus();
+            }
+            // Handle Enter to submit
+            if (e.key === 'Enter') {
+                verifyPin();
+            }
+        });
+    });
+    
+    // Verify PIN
+    function verifyPin() {
+        const enteredPin = Array.from(pinInputs).map(input => input.value).join('');
+        
+        if (enteredPin.length !== 4) {
+            pinError.textContent = 'Please enter all 4 digits!';
+            pinError.classList.remove('hidden');
+            return;
+        }
+        
+        if (enteredPin === window.currentPin) {
+            // Correct PIN! Collect the artifact
+            closePinModal();
+            // Hide the PIN display
+            const pinDisplay = document.getElementById('pin-display');
+            if (pinDisplay) pinDisplay.classList.add('hidden');
+            
+            // Now actually unlock the artifact
+            unlockHiddenArtifact();
+        } else {
+            // Wrong PIN
+            pinError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Incorrect PIN. Try again!';
+            pinError.classList.remove('hidden');
+            // Shake animation
+            pinInputs.forEach(input => {
+                input.classList.add('border-red-500');
+                input.value = '';
+            });
+            pinInputs[0].focus();
+            
+            setTimeout(() => {
+                pinInputs.forEach(input => input.classList.remove('border-red-500'));
+            }, 1000);
+        }
+    }
+    
+    // PIN modal event listeners
+    if (pinClose) {
+        pinClose.addEventListener('click', closePinModal);
+    }
+    
+    if (pinSubmit) {
+        pinSubmit.addEventListener('click', verifyPin);
+    }
+    
+    if (pinModal) {
+        pinModal.addEventListener('click', (e) => {
+            if (e.target === pinModal) {
+                closePinModal();
+            }
+        });
+    }
+    
+    // Unlock hidden artifact API call (called after correct PIN)
     async function unlockHiddenArtifact() {
         try {
             const response = await fetch('../../app/Handlers/unlock_hidden.php', {
@@ -1050,16 +1254,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateXpBar(data.new_xp, data.xp_progress, data.new_level, data.rank_name || 'Visitor');
                 }
                 
-                // Update chest to unlocked state
+                // Update chest to unlocked state (fully collected)
                 if (hiddenChest) {
                     hiddenChest.dataset.unlocked = 'true';
+                    hiddenChest.dataset.collectible = 'false';
                 }
                 
-                setTimeout(() => {
-                    quizDialogueModal.classList.add('hidden');
-                    // Show chest click prompt
-                    alert('Hidden artifact unlocked! Click the chest to collect it.');
-                }, 2000);
+                // Show success message
+                alert('🎉 Congratulations! You have collected the hidden artifact!');
             }
         } catch (error) {
             console.error('Failed to unlock artifact:', error);
