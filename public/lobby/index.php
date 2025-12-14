@@ -30,7 +30,7 @@ $door_images = [
 
 // Door positions - uniform size, same bottom alignment, slightly smaller
 $door_positions = [
-    ['left' => '20%', 'bottom' => '5%', 'height' => '60%'],
+    ['left' => '20%', 'bottom' => '8%', 'height' => '50%'],
     ['left' => '40%', 'bottom' => '8%', 'height' => '50%'],
     ['left' => '60%', 'bottom' => '8%', 'height' => '55%'],
     ['left' => '80%', 'bottom' => '8%', 'height' => '50%'],
