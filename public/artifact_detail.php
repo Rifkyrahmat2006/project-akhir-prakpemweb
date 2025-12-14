@@ -115,7 +115,8 @@
                     btnCollect.innerText = "Collect";
                 }
 
-                // Show Modal
+                // Show Modal & Hide Room UI
+                if (window.toggleRoomUI) window.toggleRoomUI(false);
                 modal.classList.remove('hidden');
                 // Small delay to allow display:block to apply before opacity transition
                 setTimeout(() => {
@@ -132,6 +133,8 @@
             modalContent.classList.add('scale-90');
             setTimeout(() => {
                 modal.classList.add('hidden');
+                // Restore Room UI
+                if (window.toggleRoomUI) window.toggleRoomUI(true);
             }, 300);
         };
 

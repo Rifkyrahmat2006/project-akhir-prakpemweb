@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- Music Toggle Button -->
-<button id="btn-music-toggle" class="fixed top-20 right-20 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition flex items-center justify-center shadow-lg">
+<button id="btn-music-toggle" class="room-ui-element fixed top-20 right-20 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 flex items-center justify-center shadow-lg">
     <i class="fas fa-volume-up"></i>
 </button>
 
@@ -213,13 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- Info Button to reopen guide (fixed position) -->
-<button id="btn-info" class="fixed top-20 right-4 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition flex items-center justify-center shadow-lg">
+<button id="btn-info" class="room-ui-element fixed top-20 right-4 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 flex items-center justify-center shadow-lg">
     <i class="fas fa-book-open"></i>
 </button>
 
 <div class="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black">
     <!-- Navigation Buttons -->
-    <div class="absolute top-4 left-4 z-30 flex gap-3">
+    <div id="room-ui-left" class="room-ui-element absolute top-4 left-4 z-30 flex gap-3 transition-opacity duration-300">
         <a href="index.php" class="btn-museum bg-black/50 text-white border-white/30 hover:bg-gold hover:text-black">
             <i class="fas fa-arrow-left mr-2"></i> Back to Lobby
         </a>
@@ -890,6 +890,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryCollect.disabled = true;
             mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed');
             
+            mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            if (window.toggleRoomUI) window.toggleRoomUI(false);
             mysteryModal.classList.remove('hidden');
             setTimeout(() => {
                 mysteryModal.classList.remove('opacity-0');
@@ -908,6 +911,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryCollect.disabled = false;
             mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed');
             
+            mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            if (window.toggleRoomUI) window.toggleRoomUI(false);
             mysteryModal.classList.remove('hidden');
             setTimeout(() => {
                 mysteryModal.classList.remove('opacity-0');
@@ -933,6 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close mystery modal
     if (mysteryClose) {
         mysteryClose.addEventListener('click', () => {
+            if (window.toggleRoomUI) window.toggleRoomUI(true);
             mysteryModal.classList.add('opacity-0');
             mysteryContent.classList.remove('scale-100');
             mysteryContent.classList.add('scale-90');
@@ -1179,6 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Show PIN modal
     function showPinModal() {
+        if (window.toggleRoomUI) window.toggleRoomUI(false);
         // Clear previous inputs
         pinInputs.forEach(input => {
             input.value = '';
@@ -1197,6 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Close PIN modal
     function closePinModal() {
+        if (window.toggleRoomUI) window.toggleRoomUI(true);
         pinModal.classList.add('opacity-0');
         pinContent.classList.remove('scale-100');
         pinContent.classList.add('scale-90');
@@ -1302,7 +1311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 // Show success message
-                alert('🎉 Congratulations! You have collected the hidden artifact!');
+                showSuccessModal('🎉 Congratulations!', 'You have collected the hidden artifact!');
             }
         } catch (error) {
             console.error('Failed to unlock artifact:', error);
@@ -1323,5 +1332,134 @@ document.addEventListener('DOMContentLoaded', () => {
         hiddenChest.classList.remove('hidden');
     }
 });
+
+// Update XP Bar UI (Global function)
+function updateXpBar(newXp, progress, newLevel, rankName) {
+    // Desktop Elements
+    const desktopFill = document.getElementById('xp-bar-fill-desktop');
+    const desktopText = document.getElementById('xp-text-desktop');
+    const desktopLevel = document.getElementById('level-text-desktop');
+    const desktopRank = document.getElementById('rank-text-desktop');
+    
+    // Mobile Elements
+    const mobileFill = document.getElementById('xp-bar-fill-mobile');
+    const mobileText = document.getElementById('xp-text-mobile');
+    const mobileLevel = document.getElementById('level-text-mobile');
+    const mobileRank = document.getElementById('rank-text-mobile');
+    
+    // Formatting helper
+    const formattedXp = new Intl.NumberFormat().format(newXp) + ' XP';
+    const levelStr = 'LV.' + newLevel;
+    
+    // Update Desktop
+    if (desktopFill) desktopFill.style.width = progress + '%';
+    if (desktopText) desktopText.textContent = formattedXp;
+    if (desktopLevel) desktopLevel.textContent = levelStr;
+    if (desktopRank) desktopRank.textContent = rankName;
+    
+    // Update Mobile
+    if (mobileFill) mobileFill.style.width = progress + '%';
+    if (mobileText) mobileText.textContent = formattedXp;
+    if (mobileLevel) mobileLevel.textContent = levelStr;
+    if (mobileRank) mobileRank.textContent = rankName;
+}
+
+// Success Modal Logic
+const successModal = document.getElementById('success-modal');
+const successTitle = document.getElementById('success-title');
+const successMessage = document.getElementById('success-message');
+const successClose = document.getElementById('success-close');
+const successOk = document.getElementById('success-ok');
+
+function showSuccessModal(title, message) {
+    if (successModal) {
+        if (window.toggleRoomUI) window.toggleRoomUI(false);
+        successTitle.textContent = title;
+        successMessage.textContent = message;
+        successModal.classList.remove('hidden');
+        setTimeout(() => {
+            successModal.classList.remove('opacity-0');
+            successModal.querySelector('div').classList.remove('scale-90');
+            successModal.querySelector('div').classList.add('scale-100');
+        }, 10);
+    } else {
+        alert(message); // Fallback
+    }
+}
+
+function closeSuccessModal() {
+    if (successModal) {
+        if (window.toggleRoomUI) window.toggleRoomUI(true);
+        successModal.classList.add('opacity-0');
+        successModal.querySelector('div').classList.remove('scale-100');
+        successModal.querySelector('div').classList.add('scale-90');
+        setTimeout(() => {
+            successModal.classList.add('hidden');
+        }, 300);
+    }
+}
+
+if (successClose) successClose.addEventListener('click', closeSuccessModal);
+if (successOk) successOk.addEventListener('click', closeSuccessModal);
+
+// Global UI Toggle Function
+window.toggleRoomUI = function(show) {
+    const uiElements = document.querySelectorAll('.room-ui-element');
+    uiElements.forEach(el => {
+        if (show) {
+            el.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+            el.classList.add('opacity-0', 'pointer-events-none');
+        }
+    });
+};
+
+// Check for visible guide modal on load (PHP first_visit)
+const guideModal = document.getElementById('guide-modal');
+if (guideModal && !guideModal.classList.contains('hidden')) {
+    if (window.toggleRoomUI) window.toggleRoomUI(false);
+}
+
+// Info Button Click
+const btnInfo = document.getElementById('btn-info');
+if (btnInfo) {
+    btnInfo.addEventListener('click', () => {
+        if (guideModal) {
+            if (window.toggleRoomUI) window.toggleRoomUI(false);
+            guideModal.classList.remove('hidden');
+            // ... (rest of logic handled by existing animation code if any, or just show it)
+            // Assuming guide modal has its own restart logic or just simple toggle
+             // Re-initialize professor if needed or just show
+        }
+    });
+}
+// Skip/Next buttons in guide should restore UI when closed
+const btnSkip = document.getElementById('btn-skip');
+if (btnSkip) {
+    btnSkip.addEventListener('click', () => {
+        if (guideModal) guideModal.classList.add('hidden');
+        if (window.toggleRoomUI) window.toggleRoomUI(true);
+    });
+}
+// Note: btn-next handles step progression, eventually closing it.
+// I need to check where the guide closes in the existing JS to add toggleRoomUI(true).
+
 </script>
+
+<!-- Success Modal (Generic) -->
+<div id="success-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-neutral-900 border border-gold/50 rounded-xl p-8 max-w-sm w-full text-center transform scale-90 transition-transform duration-300 shadow-[0_0_50px_rgba(197,160,89,0.2)]">
+        <div class="mb-4 text-gold text-5xl animate-bounce">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <h3 id="success-title" class="text-2xl text-white font-serif font-bold mb-2">Success!</h3>
+        <p id="success-message" class="text-gray-300 mb-6">Action completed successfully.</p>
+        <button id="success-ok" class="btn-museum bg-gold text-black hover:bg-white w-full">
+            Awesome!
+        </button>
+        <button id="success-close" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
 

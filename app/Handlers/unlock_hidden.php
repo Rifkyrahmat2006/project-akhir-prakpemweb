@@ -52,7 +52,8 @@ if ($unlocked) {
     // Update session
     $user = User::findById($conn, $user_id);
     $_SESSION['xp'] = $user['xp'];
-    $_SESSION['level'] = $user['level'];
+    $current_level = User::calculateLevel($user['xp']);
+    $_SESSION['level'] = $current_level;
     
     // Calculate XP progress for client-side update
     $xp_thresholds = [
@@ -67,7 +68,7 @@ if ($unlocked) {
         3 => 'Historian',
         4 => 'Royal Curator'
     ];
-    $new_level = $user['level'];
+    $new_level = $current_level;
     $new_xp = $user['xp'];
     $current_threshold = $xp_thresholds[$new_level] ?? $xp_thresholds[1];
     $xp_progress = 0;
@@ -85,7 +86,7 @@ if ($unlocked) {
         'message' => 'Hidden artifact unlocked!',
         'xp_reward' => $xp_reward,
         'leveled_up' => $level_up,
-        'new_level' => $user['level'],
+        'new_level' => $current_level,
         'new_xp' => $user['xp'],
         'xp_progress' => $xp_progress,
         'rank_name' => $rank_name,
