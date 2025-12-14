@@ -62,6 +62,11 @@ include 'header.php';
 include 'navbar.php';
 ?>
 
+<!-- Back Button - Top Left -->
+<button onclick="history.back()" class="fixed top-20 left-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/70 border-2 border-gold/50 text-gold hover:bg-gold hover:text-black transition-all duration-300 shadow-lg backdrop-blur-sm">
+    <i class="fas fa-arrow-left text-lg"></i>
+</button>
+
 <div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
     
     <div class="container mx-auto px-4 py-8 page-fade-in max-w-5xl">

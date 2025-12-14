@@ -112,6 +112,11 @@ $room_music_map = [
 $room_music = $room_music_map[$room['name']] ?? 'lobby.mp3';
 ?>
 
+<!-- Hide Scrollbar (non-scrollable page) -->
+<style>
+    html, body { overflow: hidden; }
+</style>
+
 <!-- Room-Specific Background Music -->
 <audio id="room-music" loop preload="auto" style="display: none;">
     <source src="/project-akhir/public/assets/music/<?php echo $room_music; ?>" type="audio/mpeg">
@@ -257,26 +262,83 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Room Navigation Arrows -->
     <?php if ($prev_room): ?>
     <a href="room.php?id=<?php echo $prev_room['id']; ?>" 
-       class="room-nav-arrow room-ui-element absolute z-40 text-white/60 hover:text-gold transition-all duration-300"
+       class="room-nav-arrow room-ui-element absolute z-40"
        data-direction="right"
        style="bottom: <?php echo $arrow_pos['prev']['bottom']; ?>; left: <?php echo $arrow_pos['prev']['left']; ?>;"
        title="<?php echo htmlspecialchars($prev_room['name']); ?>">
-        <i class="fas fa-chevron-left text-4xl hover:scale-125 transition-transform drop-shadow-lg"></i>
+        <i class="fas fa-chevron-left arrow-icon"></i>
     </a>
     <?php endif; ?>
     
     <?php if ($next_room): ?>
     <a href="room.php?id=<?php echo $next_room['id']; ?>" 
-       class="room-nav-arrow room-ui-element absolute z-40 text-white/60 hover:text-gold transition-all duration-300"
+       class="room-nav-arrow room-ui-element absolute z-40"
        data-direction="left"
        style="bottom: <?php echo $arrow_pos['next']['bottom']; ?>; right: <?php echo $arrow_pos['next']['right']; ?>;"
        title="<?php echo htmlspecialchars($next_room['name']); ?>">
-        <i class="fas fa-chevron-right text-4xl hover:scale-125 transition-transform drop-shadow-lg"></i>
+        <i class="fas fa-chevron-right arrow-icon"></i>
     </a>
     <?php endif; ?>
 
-    <!-- Slide Transition Styles & Script -->
+    <!-- Arrow Styles -->
     <style>
+        /* Arrow Link */
+        .room-nav-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Arrow Icon - Gaming Glow Style */
+        .arrow-icon {
+            font-size: 3rem;
+            color: rgba(197,160,89,0.7);
+            text-shadow: 
+                0 0 10px rgba(197,160,89,0.5),
+                0 0 20px rgba(197,160,89,0.3),
+                0 0 40px rgba(197,160,89,0.2);
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 8px rgba(197,160,89,0.4));
+        }
+        
+        /* Hover - Intense Glow */
+        .room-nav-arrow:hover .arrow-icon {
+            color: #C5A059;
+            text-shadow: 
+                0 0 15px rgba(197,160,89,0.8),
+                0 0 30px rgba(197,160,89,0.6),
+                0 0 60px rgba(197,160,89,0.4),
+                0 0 100px rgba(197,160,89,0.2);
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 15px rgba(197,160,89,0.8));
+        }
+        
+        /* Pointing Animation */
+        @keyframes pointLeft {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-10px); }
+        }
+        
+        @keyframes pointRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        
+        .room-nav-arrow[data-direction="right"] {
+            animation: pointLeft 1.2s ease-in-out infinite;
+        }
+        
+        .room-nav-arrow[data-direction="left"] {
+            animation: pointRight 1.2s ease-in-out infinite;
+        }
+        
+        .room-nav-arrow:hover {
+            animation-play-state: paused;
+        }
+        
+        /* Slide Transition */
         @keyframes slideOutLeft {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(-100%); opacity: 0; }
@@ -287,25 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         .slide-left { animation: slideOutLeft 0.4s ease-in-out forwards; }
         .slide-right { animation: slideOutRight 0.4s ease-in-out forwards; }
-        
-        /* Arrow pointing animation - sways toward the destination */
-        @keyframes pointLeft {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(-12px); }
-        }
-        @keyframes pointRight {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(12px); }
-        }
-        .room-nav-arrow[data-direction="right"] {
-            animation: pointLeft 1.2s ease-in-out infinite;
-        }
-        .room-nav-arrow[data-direction="left"] {
-            animation: pointRight 1.2s ease-in-out infinite;
-        }
-        .room-nav-arrow:hover {
-            animation-play-state: paused;
-        }
     </style>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -368,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         1 => ['top' => '63%', 'left' => '48%'],      // Medieval Hall
         2 => ['top' => '68%', 'left' => '23%'],    // Renaissance Gallery
         3 => ['top' => '63%', 'left' => '60%'],    // Baroque Palace
-        4 => ['top' => '70%', 'left' => '85%'],    // Royal Archives
+        4 => ['top' => '80%', 'left' => '70%'],    // Royal Archives
     ];
     $chest_pos = $chest_positions[$room_id] ?? ['top' => '65%', 'left' => '48%'];
     ?>
@@ -418,9 +461,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     This ancient artifact remains shrouded in mystery. Only those who prove their knowledge can unlock its secrets...
                 </p>
                 
-                <div class="flex justify-center">
+                <!-- Buttons Container -->
+                <div class="flex flex-col gap-3 items-center">
+                    <!-- Start Quiz Button (shown initially) -->
                     <button id="mystery-collect" class="bg-amber-800 hover:bg-amber-900 text-amber-100 font-bold py-2 px-6 text-sm rounded-lg transition shadow-lg">
                         <i class="fas fa-key mr-2"></i> Collect?
+                    </button>
+                    
+                    <!-- Actual Collect Button (shown after reveal) -->
+                    <button id="mystery-add-collection" class="hidden bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-8 text-sm rounded-lg transition shadow-lg">
+                        <i class="fas fa-plus-circle mr-2"></i> Add to Collection
                     </button>
                 </div>
             </div>
@@ -935,6 +985,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let quizTyping = false;
     let quizTypeInterval;
     
+    // Helper function: Show mystery modal
+    function showMysteryModal() {
+        if (window.toggleRoomUI) window.toggleRoomUI(false);
+        mysteryModal.classList.remove('hidden');
+        setTimeout(() => {
+            mysteryModal.classList.remove('opacity-0');
+            mysteryContent.classList.remove('scale-90');
+            mysteryContent.classList.add('scale-100');
+        }, 10);
+    }
+    
+    // Helper function: Close mystery modal
+    function closeMysteryModal() {
+        if (window.toggleRoomUI) window.toggleRoomUI(true);
+        mysteryModal.classList.add('opacity-0');
+        mysteryContent.classList.remove('scale-100');
+        mysteryContent.classList.add('scale-90');
+        setTimeout(() => mysteryModal.classList.add('hidden'), 300);
+    }
+    
     // Show chest after congrats modal closes - make it global
     window.showHiddenChest = function() {
         let chest = document.getElementById('hidden-chest');
@@ -979,27 +1049,37 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const unlocked = chest.dataset.unlocked === 'true';
         const collectible = chest.dataset.collectible === 'true';
+        const revealed = chest.dataset.revealed === 'true';
+        const mysteryAddBtn = document.getElementById('mystery-add-collection');
         
         if (unlocked) {
             // Already unlocked/collected - show actual artifact
             mysteryTitle.textContent = chest.dataset.artifactName;
             mysteryDesc.textContent = chest.dataset.artifactDesc;
             if (chest.dataset.artifactImage) {
-                mysteryImageContainer.innerHTML = `<img src="${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-full h-full object-contain">`;
+                mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
             }
             mysteryCollect.innerHTML = '<i class="fas fa-check mr-2"></i> Already Collected!';
             mysteryCollect.disabled = true;
-            mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed');
+            mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed', 'hidden');
+            if (mysteryAddBtn) mysteryAddBtn.classList.add('hidden');
             
-            mysteryCollect.classList.add('opacity-50', 'cursor-not-allowed');
+            showMysteryModal();
+        } else if (revealed) {
+            // Revealed but not yet collected - show artifact with Add to Collection button
+            mysteryTitle.textContent = chest.dataset.artifactName;
+            mysteryDesc.textContent = chest.dataset.artifactDesc;
+            if (chest.dataset.artifactImage) {
+                mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
+            }
+            mysteryCollect.classList.add('hidden');
+            if (mysteryAddBtn) {
+                mysteryAddBtn.classList.remove('hidden');
+                mysteryAddBtn.disabled = false;
+                mysteryAddBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Add to Collection';
+            }
             
-            if (window.toggleRoomUI) window.toggleRoomUI(false);
-            mysteryModal.classList.remove('hidden');
-            setTimeout(() => {
-                mysteryModal.classList.remove('opacity-0');
-                mysteryContent.classList.remove('scale-90');
-                mysteryContent.classList.add('scale-100');
-            }, 10);
+            showMysteryModal();
         } else if (collectible) {
             // Passed quiz, needs PIN to collect - show PIN modal
             showPinModal();
@@ -1010,17 +1090,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryImageContainer.innerHTML = '<i class="fas fa-question"></i>';
             mysteryCollect.innerHTML = '<i class="fas fa-key mr-2"></i> Collect?';
             mysteryCollect.disabled = false;
-            mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed');
+            mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed', 'hidden');
+            if (mysteryAddBtn) mysteryAddBtn.classList.add('hidden');
             
-            mysteryCollect.classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            if (window.toggleRoomUI) window.toggleRoomUI(false);
-            mysteryModal.classList.remove('hidden');
-            setTimeout(() => {
-                mysteryModal.classList.remove('opacity-0');
-                mysteryContent.classList.remove('scale-90');
-                mysteryContent.classList.add('scale-100');
-            }, 10);
+            showMysteryModal();
         }
     }
     
@@ -1039,13 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Close mystery modal
     if (mysteryClose) {
-        mysteryClose.addEventListener('click', () => {
-            if (window.toggleRoomUI) window.toggleRoomUI(true);
-            mysteryModal.classList.add('opacity-0');
-            mysteryContent.classList.remove('scale-100');
-            mysteryContent.classList.add('scale-90');
-            setTimeout(() => mysteryModal.classList.add('hidden'), 300);
-        });
+        mysteryClose.addEventListener('click', closeMysteryModal);
     }
     
     // Click outside mystery modal to close
@@ -1347,14 +1414,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (enteredPin === window.currentPin) {
-            // Correct PIN! Collect the artifact
+            // Correct PIN! REVEAL the artifact (don't collect yet)
             closePinModal();
             // Hide the PIN display
             const pinDisplay = document.getElementById('pin-display');
             if (pinDisplay) pinDisplay.classList.add('hidden');
             
-            // Now actually unlock the artifact
-            unlockHiddenArtifact();
+            // Reveal the artifact in the mystery modal
+            revealHiddenArtifact();
         } else {
             // Wrong PIN
             pinError.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Incorrect PIN. Try again!';
@@ -1389,40 +1456,83 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Unlock hidden artifact API call (called after correct PIN)
-    async function unlockHiddenArtifact() {
-        try {
-            const response = await fetch('../../app/Handlers/unlock_hidden.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `room_id=<?php echo $room_id; ?>`
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                // Update XP bar dynamically
-                if (typeof updateXpBar === 'function' && data.new_xp !== undefined && data.xp_progress !== undefined) {
-                    updateXpBar(data.new_xp, data.xp_progress, data.new_level, data.rank_name || 'Visitor');
-                }
-                
-                // Update chest to unlocked state (fully collected)
-                if (hiddenChest) {
-                    hiddenChest.dataset.unlocked = 'true';
-                    hiddenChest.dataset.collectible = 'false';
-                    
-                    // Change chest image to opened
-                    const chestImg = document.getElementById('chest-image');
-                    if (chestImg) {
-                        chestImg.src = '/project-akhir/public/assets/img/artifacts/chest-opened.png';
-                    }
-                }
-                
-                // Show success message
-                showSuccessModal('Congratulations!', 'You have collected the hidden artifact!');
-            }
-        } catch (error) {
-            console.error('Failed to unlock artifact:', error);
+    // Reveal hidden artifact (show real name/image, but don't collect yet)
+    function revealHiddenArtifact() {
+        const artifactName = hiddenChest.dataset.artifactName;
+        const artifactDesc = hiddenChest.dataset.artifactDesc;
+        const artifactImage = hiddenChest.dataset.artifactImage;
+        
+        // Update mystery modal with real artifact info
+        const mysteryTitle = document.getElementById('mystery-title');
+        const mysteryDesc = document.getElementById('mystery-desc');
+        const mysteryImageContainer = document.getElementById('mystery-image-container');
+        const mysteryCollectBtn = document.getElementById('mystery-collect');
+        const mysteryAddBtn = document.getElementById('mystery-add-collection');
+        
+        if (mysteryTitle) mysteryTitle.textContent = artifactName;
+        if (mysteryDesc) mysteryDesc.textContent = artifactDesc;
+        
+        // Show real artifact image
+        if (mysteryImageContainer && artifactImage) {
+            mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${artifactImage}" alt="${artifactName}" class="w-36 h-36 object-contain">`;
         }
+        
+        // Hide "Collect?" button, show "Add to Collection" button
+        if (mysteryCollectBtn) mysteryCollectBtn.classList.add('hidden');
+        if (mysteryAddBtn) mysteryAddBtn.classList.remove('hidden');
+        
+        // Mark as revealed (but not collected)
+        hiddenChest.dataset.revealed = 'true';
+        
+        // Show the mystery modal with revealed artifact
+        showMysteryModal();
+    }
+    
+    // "Add to Collection" button - actually collect the artifact
+    const mysteryAddBtn = document.getElementById('mystery-add-collection');
+    if (mysteryAddBtn) {
+        mysteryAddBtn.addEventListener('click', async () => {
+            mysteryAddBtn.disabled = true;
+            mysteryAddBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Collecting...';
+            
+            try {
+                const response = await fetch('../../app/Handlers/unlock_hidden.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `room_id=<?php echo $room_id; ?>`
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update XP bar dynamically
+                    if (typeof updateXpBar === 'function' && data.new_xp !== undefined && data.xp_progress !== undefined) {
+                        updateXpBar(data.new_xp, data.xp_progress, data.new_level, data.rank_name || 'Visitor');
+                    }
+                    
+                    // Update chest to unlocked state (fully collected)
+                    if (hiddenChest) {
+                        hiddenChest.dataset.unlocked = 'true';
+                        hiddenChest.dataset.collectible = 'false';
+                        
+                        // Change chest image to opened
+                        const chestImg = document.getElementById('chest-image');
+                        if (chestImg) {
+                            chestImg.src = '/project-akhir/public/assets/img/artifacts/chest-opened.png';
+                        }
+                    }
+                    
+                    // Close mystery modal
+                    closeMysteryModal();
+                    
+                    // Show success message
+                    showSuccessModal('Congratulations!', 'You have collected the hidden artifact!');
+                }
+            } catch (error) {
+                console.error('Failed to collect artifact:', error);
+                mysteryAddBtn.disabled = false;
+                mysteryAddBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Add to Collection';
+            }
+        });
     }
     
     // Quiz skip/abort button

@@ -7,6 +7,11 @@ if (isset($_SESSION['user_id'])) {
 include 'header.php';
 ?>
 
+<!-- Hide Scrollbar (non-scrollable page) -->
+<style>
+    html, body { overflow: hidden; }
+</style>
+
 <div class="flex-grow flex items-center justify-center relative py-20 px-4 overflow-hidden">
     <!-- Video Background -->
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">

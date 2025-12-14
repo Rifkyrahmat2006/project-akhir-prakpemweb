@@ -40,6 +40,11 @@ include '../header.php';
 include '../navbar.php';
 ?>
 
+<!-- Hide Scrollbar (non-scrollable page) -->
+<style>
+    html, body { overflow: hidden; }
+</style>
+
 <!-- Lobby Background Music -->
 <audio id="lobby-music" loop preload="auto" style="display: none;">
     <source src="/project-akhir/public/assets/music/lobby.mp3" type="audio/mpeg">
