@@ -76,13 +76,23 @@ if ($hidden_artifact) {
     $hidden_artifact['unlocked'] = $hidden_artifact_unlocked;
 }
 
-// Get next room info for navigation arrow
+// Get previous and next room for navigation arrows
+$prev_room = null;
 $next_room = null;
-if ($hidden_artifact_unlocked) {
-    $next_room = Room::findById($conn, $room_id + 1);
-    if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
-        $next_room = null; // Access check, though usually if they finished this room they might be close
+
+// Previous room (always available if exists)
+if ($room_id > 1) {
+    $prev_room = Room::findById($conn, $room_id - 1);
+    // Only show if user has access
+    if ($prev_room && $_SESSION['level'] < $prev_room['min_level']) {
+        $prev_room = null;
     }
+}
+
+// Next room (always available if exists and user has access)
+$next_room = Room::findById($conn, $room_id + 1);
+if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
+    $next_room = null;
 }
 
 // Clean description for JS usage
@@ -233,6 +243,84 @@ document.addEventListener('DOMContentLoaded', () => {
     
     <!-- Room Progress (Moved to Left) -->  
 
+    <?php
+    // Arrow position configuration per room (edit here!)
+    $arrow_positions = [
+        1 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '13%']],      // Medieval Hall
+        2 => ['prev' => ['bottom' => '40%', 'left' => '25%'], 'next' => ['bottom' => '20%', 'right' => '18%']],      // Renaissance Gallery
+        3 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '24%', 'right' => '16%']],      // Baroque Palace
+        4 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '5%']],      // Royal Archives
+    ];
+    $arrow_pos = $arrow_positions[$room_id] ?? ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '5%']];
+    ?>
+    
+    <!-- Room Navigation Arrows -->
+    <?php if ($prev_room): ?>
+    <a href="room.php?id=<?php echo $prev_room['id']; ?>" 
+       class="room-nav-arrow room-ui-element absolute z-40 text-white/60 hover:text-gold transition-all duration-300"
+       data-direction="right"
+       style="bottom: <?php echo $arrow_pos['prev']['bottom']; ?>; left: <?php echo $arrow_pos['prev']['left']; ?>;"
+       title="<?php echo htmlspecialchars($prev_room['name']); ?>">
+        <i class="fas fa-chevron-left text-4xl hover:scale-125 transition-transform drop-shadow-lg"></i>
+    </a>
+    <?php endif; ?>
+    
+    <?php if ($next_room): ?>
+    <a href="room.php?id=<?php echo $next_room['id']; ?>" 
+       class="room-nav-arrow room-ui-element absolute z-40 text-white/60 hover:text-gold transition-all duration-300"
+       data-direction="left"
+       style="bottom: <?php echo $arrow_pos['next']['bottom']; ?>; right: <?php echo $arrow_pos['next']['right']; ?>;"
+       title="<?php echo htmlspecialchars($next_room['name']); ?>">
+        <i class="fas fa-chevron-right text-4xl hover:scale-125 transition-transform drop-shadow-lg"></i>
+    </a>
+    <?php endif; ?>
+
+    <!-- Slide Transition Styles & Script -->
+    <style>
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .slide-left { animation: slideOutLeft 0.4s ease-in-out forwards; }
+        .slide-right { animation: slideOutRight 0.4s ease-in-out forwards; }
+        
+        /* Arrow pointing animation - sways toward the destination */
+        @keyframes pointLeft {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-12px); }
+        }
+        @keyframes pointRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(12px); }
+        }
+        .room-nav-arrow[data-direction="right"] {
+            animation: pointLeft 1.2s ease-in-out infinite;
+        }
+        .room-nav-arrow[data-direction="left"] {
+            animation: pointRight 1.2s ease-in-out infinite;
+        }
+        .room-nav-arrow:hover {
+            animation-play-state: paused;
+        }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.room-nav-arrow').forEach(arrow => {
+            arrow.addEventListener('click', function(e) {
+                e.preventDefault();
+                const direction = this.dataset.direction;
+                const href = this.getAttribute('href');
+                const container = this.closest('.relative.w-full');
+                if (container) container.classList.add('slide-' + direction);
+                setTimeout(() => { window.location.href = href; }, 350);
+            });
+        });
+    });
+    </script>
 
     <!-- Room Background -->
     <div class="absolute inset-0 bg-cover bg-center z-0" 
@@ -396,13 +484,13 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
             
             <!-- Content -->
-            <div class="relative z-10 max-w-[300px] mx-auto">
-                <div class="mb-3">
-                    <i class="fas fa-key text-4xl text-amber-700"></i>
+            <div class="relative z-10 max-w-[280px] mx-auto px-4">
+                <div class="mb-2">
+                    <i class="fas fa-key text-3xl text-amber-700"></i>
                 </div>
-                <h3 class="text-xl text-amber-900 font-serif font-bold mb-2 drop-shadow-sm">Enter Secret PIN</h3>
-                <p class="text-amber-800 mb-6 text-sm" style="font-family: 'Garamond', 'Georgia', serif;">
-                    A mystical 4-digit code is hidden somewhere in this chamber. Find it to unlock the artifact!
+                <h3 class="text-lg text-amber-900 font-serif font-bold mb-2 drop-shadow-sm">Enter Secret PIN</h3>
+                <p class="text-amber-800 mb-4 text-xs leading-relaxed" style="font-family: 'Garamond', 'Georgia', serif;">
+                    Find the hidden 4-digit code in this chamber to unlock the artifact.
                 </p>
                 
                 <!-- PIN Input Boxes -->

@@ -33,11 +33,9 @@ if (!$result['success']) {
     exit();
 }
 
-// Update session
+// Update session - ALWAYS sync level to prevent desync
 $_SESSION['xp'] = $result['new_xp'];
-if ($result['leveled_up']) {
-    $_SESSION['level'] = $result['new_level'];
-}
+$_SESSION['level'] = $result['new_level']; // Always update level, not just on level-up
 
 // Check if all artifacts in this room are now collected
 $artifact = Artifact::findById($conn, $artifact_id);
@@ -53,18 +51,18 @@ if ($all_collected) {
         $hidden_artifact['unlocked'] = $hidden_unlocked;
     }
 }
-// Calculate XP progress for client-side update
+// Calculate XP progress for client-side update (matching User model thresholds)
 $xp_thresholds = [
-    1 => ['min' => 0, 'max' => 100],
-    2 => ['min' => 101, 'max' => 300],
-    3 => ['min' => 301, 'max' => 600],
-    4 => ['min' => 601, 'max' => 1000]
+    1 => ['min' => 0, 'max' => 50],
+    2 => ['min' => 50, 'max' => 200],
+    3 => ['min' => 200, 'max' => 500],
+    4 => ['min' => 500, 'max' => 1000]
 ];
 $rank_names = [
-    1 => 'Visitor',
-    2 => 'Explorer',
-    3 => 'Historian',
-    4 => 'Royal Curator'
+    1 => 'Novice Explorer',
+    2 => 'Apprentice Historian',
+    3 => 'Master Curator',
+    4 => 'Royal Archivist'
 ];
 $new_level = $result['new_level'];
 $new_xp = $result['new_xp'];
@@ -77,7 +75,7 @@ if ($new_level < 4) {
 } else {
     $xp_progress = 100;
 }
-$rank_name = $rank_names[$new_level] ?? 'Visitor';
+$rank_name = $rank_names[$new_level] ?? 'Novice Explorer';
 
 // Get current collection count for room
 $collected_count = Room::getCollectedArtifactCount($conn, $room_id, $user_id);

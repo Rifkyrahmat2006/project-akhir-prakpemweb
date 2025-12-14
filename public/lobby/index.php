@@ -40,6 +40,64 @@ include '../header.php';
 include '../navbar.php';
 ?>
 
+<!-- Lobby Background Music -->
+<audio id="lobby-music" loop preload="auto" style="display: none;">
+    <source src="/project-akhir/public/assets/music/lobby.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
+
+<!-- Music Toggle Button -->
+<button id="btn-music-toggle" class="fixed top-20 right-4 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition-all duration-300 flex items-center justify-center shadow-lg">
+    <i class="fas fa-volume-up"></i>
+</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const musicBtn = document.getElementById('btn-music-toggle');
+    const musicIcon = musicBtn.querySelector('i');
+    const audio = document.getElementById('lobby-music');
+    
+    if (musicBtn && audio) {
+        audio.volume = 0.6;
+        
+        // Try to play music
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('Lobby music started');
+                musicIcon.className = 'fas fa-volume-up';
+            }).catch(error => {
+                console.log('Lobby music autoplay prevented:', error);
+                musicIcon.className = 'fas fa-volume-mute';
+                
+                // Fallback: play on first user interaction
+                document.body.addEventListener('click', function startLobbyMusic(e) {
+                    if (e.target.closest('#btn-music-toggle')) return;
+                    audio.play().then(() => {
+                        musicIcon.className = 'fas fa-volume-up';
+                    }).catch(e => console.log('Lobby music play failed:', e));
+                    document.body.removeEventListener('click', startLobbyMusic);
+                }, { once: true });
+            });
+        }
+        
+        musicBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play().catch(e => console.log('Play failed', e));
+                musicIcon.className = 'fas fa-volume-up';
+            } else {
+                audio.pause();
+                musicIcon.className = 'fas fa-volume-mute';
+            }
+        });
+        
+        // Sync icon with audio state
+        audio.addEventListener('play', () => musicIcon.className = 'fas fa-volume-up');
+        audio.addEventListener('pause', () => musicIcon.className = 'fas fa-volume-mute');
+    }
+});
+</script>
+
 <!-- Transition Overlay -->
 <div id="transition-overlay" class="fixed inset-0 z-[200] pointer-events-none opacity-0 bg-black transition-opacity duration-700"></div>
 

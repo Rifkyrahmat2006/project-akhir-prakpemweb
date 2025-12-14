@@ -38,6 +38,9 @@
 <script>
     // Function to update XP bar dynamically
     function updateXpBar(newXp, xpProgress, newLevel, rankName) {
+        // Ensure xpProgress is a valid number
+        xpProgress = parseFloat(xpProgress) || 0;
+        
         // Update desktop XP bar
         const xpBarDesktop = document.getElementById('xp-bar-fill-desktop');
         const xpTextDesktop = document.getElementById('xp-text-desktop');
@@ -45,7 +48,12 @@
         const rankTextDesktop = document.getElementById('rank-text-desktop');
         
         if (xpBarDesktop) {
-            xpBarDesktop.style.width = xpProgress + '%';
+            // Force a reflow to ensure the transition works
+            xpBarDesktop.style.transition = 'width 0.5s ease-out';
+            // Use requestAnimationFrame to ensure proper animation
+            requestAnimationFrame(() => {
+                xpBarDesktop.style.width = xpProgress + '%';
+            });
             xpBarDesktop.dataset.currentXp = newXp;
             xpBarDesktop.dataset.level = newLevel;
         }
@@ -59,18 +67,17 @@
         const levelTextMobile = document.getElementById('level-text-mobile');
         const rankTextMobile = document.getElementById('rank-text-mobile');
         
-        if (xpBarMobile) xpBarMobile.style.width = xpProgress + '%';
+        if (xpBarMobile) {
+            xpBarMobile.style.transition = 'width 0.5s ease-out';
+            requestAnimationFrame(() => {
+                xpBarMobile.style.width = xpProgress + '%';
+            });
+        }
         if (xpTextMobile) xpTextMobile.textContent = newXp.toLocaleString() + ' XP';
         if (levelTextMobile) levelTextMobile.textContent = newLevel;
         if (rankTextMobile) rankTextMobile.textContent = rankName;
         
-        // Add animation effect to XP bar
-        if (xpBarDesktop) {
-            xpBarDesktop.style.transition = 'width 0.5s ease-out';
-        }
-        if (xpBarMobile) {
-            xpBarMobile.style.transition = 'width 0.5s ease-out';
-        }
+        console.log('XP Bar Updated:', { newXp, xpProgress: xpProgress + '%', newLevel, rankName });
     }
 
     document.addEventListener('DOMContentLoaded', () => {

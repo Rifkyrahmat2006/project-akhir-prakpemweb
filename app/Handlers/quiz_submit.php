@@ -36,13 +36,11 @@ try {
         throw new Exception($result['message']);
     }
 
-    // Update session
+    // Update session - ALWAYS sync level to prevent desync
     if ($result['new_xp']) {
         $_SESSION['xp'] = $result['new_xp'];
     }
-    if ($result['leveled_up']) {
-        $_SESSION['level'] = $result['new_level'];
-    }
+    $_SESSION['level'] = $result['new_level']; // Always update level
 
     // Check for hidden artifact unlock
     $hidden_artifact_unlocked = false;
