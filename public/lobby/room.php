@@ -183,6 +183,35 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+<!-- Music Toggle Button -->
+<button id="btn-music-toggle" class="fixed top-20 right-20 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition flex items-center justify-center shadow-lg">
+    <i class="fas fa-volume-up"></i>
+</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const musicBtn = document.getElementById('btn-music-toggle');
+    const musicIcon = musicBtn.querySelector('i');
+    const audio = document.getElementById('room-music');
+    
+    if (musicBtn && audio) {
+        musicBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play().catch(e => console.log('Play failed', e));
+                musicIcon.className = 'fas fa-volume-up';
+            } else {
+                audio.pause();
+                musicIcon.className = 'fas fa-volume-mute';
+            }
+        });
+        
+        // Sync icon with audio state (in case of autoplay)
+        audio.addEventListener('play', () => musicIcon.className = 'fas fa-volume-up');
+        audio.addEventListener('pause', () => musicIcon.className = 'fas fa-volume-mute');
+    }
+});
+</script>
+
 <!-- Info Button to reopen guide (fixed position) -->
 <button id="btn-info" class="fixed top-20 right-4 z-[90] w-12 h-12 rounded-full bg-black/70 border-2 border-gold text-gold hover:bg-gold hover:text-black transition flex items-center justify-center shadow-lg">
     <i class="fas fa-book-open"></i>
@@ -194,13 +223,16 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="index.php" class="btn-museum bg-black/50 text-white border-white/30 hover:bg-gold hover:text-black">
             <i class="fas fa-arrow-left mr-2"></i> Back to Lobby
         </a>
+        
+        <!-- Room Progress Pill -->
+        <div class="flex items-center gap-2 bg-black/50 border border-gray-700 rounded-full px-4 py-2">
+            <i class="fas fa-gem text-gold"></i>
+            <span class="text-white text-sm"><?php echo $collected_count; ?>/<?php echo $total_artifacts; ?></span>
+        </div>
     </div>
     
-    <!-- Room Progress -->
-    <div class="absolute top-4 right-20 z-30 flex items-center gap-2 bg-black/50 border border-gray-700 rounded-full px-4 py-2">
-        <i class="fas fa-gem text-gold"></i>
-        <span class="text-white text-sm"><?php echo $collected_count; ?>/<?php echo $total_artifacts; ?></span>
-    </div>
+    <!-- Room Progress (Moved to Left) -->  
+
 
     <!-- Room Background -->
     <div class="absolute inset-0 bg-cover bg-center z-0" 
