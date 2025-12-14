@@ -210,8 +210,3 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
-
-<?php 
-$conn->close();
-include '../footer.php'; 
-?>

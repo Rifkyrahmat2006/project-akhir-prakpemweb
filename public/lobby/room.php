@@ -274,9 +274,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <?php include '../artifact_detail.php'; ?>
     
+    <?php
+    // Chest position configuration per room (edit here!)
+    $chest_positions = [
+        1 => ['top' => '63%', 'left' => '48%'],      // Medieval Hall
+        2 => ['top' => '68%', 'left' => '23%'],    // Renaissance Gallery
+        3 => ['top' => '63%', 'left' => '60%'],    // Baroque Palace
+        4 => ['top' => '70%', 'left' => '85%'],    // Royal Archives
+    ];
+    $chest_pos = $chest_positions[$room_id] ?? ['top' => '65%', 'left' => '48%'];
+    ?>
+    
     <!-- Hidden Chest (Shows after all artifacts collected) - Always rendered for dynamic trigger -->
     <div id="hidden-chest" class="absolute cursor-pointer z-20 hidden transform hover:scale-110 transition-all duration-300"
-         style="top: 65%; left: 48%;"
+         style="top: <?php echo $chest_pos['top']; ?>; left: <?php echo $chest_pos['left']; ?>;"
          data-artifact-name="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['name']) : 'Hidden Artifact'; ?>"
          data-artifact-desc="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['description']) : 'A mysterious artifact awaits...'; ?>"
          data-artifact-image="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['image']) : ''; ?>"
@@ -284,8 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Chest Glow (Reduced Intensity & Softened) -->
         <div class="absolute inset-0 rounded-full bg-amber-400/20 blur-xl animate-pulse"></div>
         <div class="absolute inset-1 rounded-full bg-yellow-300/30 blur-lg"></div>
-        <!-- Chest Image -->
-        <img src="/project-akhir/public/assets/img/artifacts/chest.png" alt="Hidden Chest" 
+        <!-- Chest Image - Changes based on unlock status -->
+        <img id="chest-image" 
+             src="/project-akhir/public/assets/img/artifacts/<?php echo $hidden_artifact_unlocked ? 'chest-opened.png' : 'chest.png'; ?>" 
+             alt="Hidden Chest" 
              class="relative z-10 w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]">
     </div>
     
@@ -1308,6 +1321,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (hiddenChest) {
                     hiddenChest.dataset.unlocked = 'true';
                     hiddenChest.dataset.collectible = 'false';
+                    
+                    // Change chest image to opened
+                    const chestImg = document.getElementById('chest-image');
+                    if (chestImg) {
+                        chestImg.src = '/project-akhir/public/assets/img/artifacts/chest-opened.png';
+                    }
                 }
                 
                 // Show success message
