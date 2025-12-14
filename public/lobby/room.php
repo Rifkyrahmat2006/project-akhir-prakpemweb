@@ -195,7 +195,8 @@ include '../navbar.php';
     <div id="congrats-modal" class="fixed inset-0 z-[100] hidden flex flex-col justify-end bg-black/90">
         <!-- Professor Container - Same as intro -->
         <div id="congrats-professor-container" class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-30 pointer-events-none transition-all duration-700 ease-out flex items-end">
-            <img src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+            <img id="congrats-prof-gif" src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+            <img id="congrats-prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
         
         <!-- Dialogue Area - Bottom (Same as intro) -->
@@ -222,7 +223,7 @@ include '../navbar.php';
                 </button>
                 
                 <!-- Action Buttons (hidden initially, shown at last message) -->
-                <div id="congrats-actions" class="hidden gap-4">
+                <div id="congrats-actions" class="hidden flex gap-4">
                     <a href="quiz.php?room_id=<?php echo $room_id; ?>" class="btn-museum bg-gold hover:bg-gold-hover text-black">
                         <i class="fas fa-check mr-2"></i> Yes, let's go!
                     </a>
@@ -395,9 +396,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Enter key to advance dialog
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !guideModal.classList.contains('hidden')) {
-            e.preventDefault();
-            nextStep();
+        if (e.key === 'Enter') {
+            if (guideModal && !guideModal.classList.contains('hidden')) {
+                e.preventDefault();
+                nextStep();
+            } else if (congratsModal && !congratsModal.classList.contains('hidden')) {
+                // Only if next button is visible (not on Yes/No step)
+                if (congratsNext && !congratsNext.classList.contains('hidden')) {
+                    e.preventDefault();
+                    nextCongratsStep();
+                }
+            }
         }
     });
     
@@ -462,8 +471,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    const congratsProfGif = document.getElementById('congrats-prof-gif');
+    const congratsProfIdle = document.getElementById('congrats-prof-idle');
+
+    function setCongratsProfessorState(isTalking) {
+        if (congratsProfGif && congratsProfIdle) {
+            if (isTalking) {
+                congratsProfGif.classList.remove('hidden');
+                congratsProfIdle.classList.add('hidden');
+            } else {
+                congratsProfGif.classList.add('hidden');
+                congratsProfIdle.classList.remove('hidden');
+            }
+        }
+    }
+
     function typeCongratsMessage(text, callback) {
         congratsTyping = true;
+        setCongratsProfessorState(true); // Start Talking
         let i = 0;
         congratsTypewriter.innerHTML = '';
         
@@ -474,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 clearInterval(congratsTypeInterval);
                 congratsTyping = false;
+                setCongratsProfessorState(false); // Stop Talking (Idle)
                 if (callback) callback();
             }
         }, 30);
@@ -484,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show Yes/No buttons on last message
             congratsNext.classList.add('hidden');
             congratsActions.classList.remove('hidden');
+            setCongratsProfessorState(false); // Ensure idle
             return;
         }
         
@@ -497,6 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(congratsTypeInterval);
             congratsTypewriter.innerHTML = congratsMessages[congratsStep];
             congratsTyping = false;
+            setCongratsProfessorState(false); // Stop Talking (Idle)
         } else {
             showCongratsMessage(congratsStep + 1);
         }
