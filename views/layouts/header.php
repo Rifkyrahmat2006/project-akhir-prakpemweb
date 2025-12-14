@@ -47,3 +47,8 @@
     </style>
 </head>
 <body class="bg-darker-bg text-gray-200 flex flex-col min-h-screen">
+    <!-- Background Music Player (Hidden) -->
+    <audio id="bg-music" loop preload="auto" style="display: none;">
+        <source src="/project-akhir/public/assets/music/lobby.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>

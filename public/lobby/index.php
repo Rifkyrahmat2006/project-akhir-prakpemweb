@@ -20,63 +20,196 @@ foreach ($all_rooms as $room) {
     $rooms[] = $room;
 }
 
+// Door images in order: Medieval, Renaissance, Baroque, Archive
+$door_images = [
+    '/project-akhir/public/assets/img/medievaldoor.png',
+    '/project-akhir/public/assets/img/renaissancedoor.png',
+    '/project-akhir/public/assets/img/baroquedoor.png',
+    '/project-akhir/public/assets/img/archivedoor.png',
+];
+
+// Door positions - uniform size, same bottom alignment, slightly smaller
+$door_positions = [
+    ['left' => '16%', 'bottom' => '3%', 'height' => '68%'],
+    ['left' => '36%', 'bottom' => '3%', 'height' => '68%'],
+    ['left' => '56%', 'bottom' => '3%', 'height' => '68%'],
+    ['left' => '76%', 'bottom' => '3%', 'height' => '68%'],
+];
+
 include '../header.php';
 include '../navbar.php';
 ?>
 
-<div class="flex-grow container mx-auto px-4 py-8 page-fade-in">
-    <div class="text-center mb-12">
-        <h1 class="text-4xl text-gold font-serif mb-2">Museum Hall</h1>
-        <p class="text-gray-400">Select a room to begin your exploration.</p>
-    </div>
+<!-- Transition Overlay -->
+<div id="transition-overlay" class="fixed inset-0 z-[200] pointer-events-none opacity-0 bg-black transition-opacity duration-700"></div>
 
-    <?php if (empty($rooms)): ?>
-    <div class="text-center py-20 bg-gray-900/50 rounded-lg border border-dashed border-gray-700">
-        <i class="fas fa-door-closed text-6xl text-gray-700 mb-4"></i>
-        <h3 class="text-xl text-gray-400 mb-2">No Rooms Available</h3>
-        <p class="text-gray-600">The museum is being prepared. Please check back later.</p>
-    </div>
-    <?php else: ?>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <?php foreach ($rooms as $room): ?>
-            <div class="museum-card relative group rounded-lg overflow-hidden h-96">
-                <!-- Background Image -->
-                <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-110"
-                     style="background-image: url('<?php echo $room['image_url']; ?>');">
+<!-- Lobby Container -->
+<div class="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black">
+    <!-- Background Image - roomchoice.png -->
+    <img src="/project-akhir/public/assets/img/roomchoice.png" 
+         alt="Museum Lobby" 
+         class="w-full h-full object-cover object-center"
+         id="lobby-bg">
+    
+    <!-- Door Images - No containers, natural placement -->
+    <?php for ($i = 0; $i < 4 && $i < count($rooms); $i++): ?>
+        <?php 
+        $room = $rooms[$i];
+        $door_img = $door_images[$i];
+        $pos = $door_positions[$i];
+        ?>
+        
+        <div class="door-item absolute cursor-pointer transition-all duration-300"
+             style="left: <?php echo $pos['left']; ?>; bottom: <?php echo $pos['bottom']; ?>; height: <?php echo $pos['height']; ?>; transform: translateX(-50%);"
+             data-room-id="<?php echo $room['id']; ?>"
+             data-locked="<?php echo $room['is_locked'] ? 'true' : 'false'; ?>"
+             data-room-name="<?php echo htmlspecialchars($room['name']); ?>"
+             data-min-level="<?php echo $room['min_level']; ?>">
+            
+            <!-- Door Image -->
+            <img src="<?php echo $door_img; ?>" 
+                 alt="<?php echo htmlspecialchars($room['name']); ?>"
+                 class="h-full w-auto object-contain mx-auto transition-all duration-300 door-image"
+                 style="filter: brightness(0.9);">
+            
+            <!-- Lock Badge (appears over door) -->
+            <?php if ($room['is_locked']): ?>
+            <div class="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10 pointer-events-none">
+                <div class="bg-black/85 border-2 border-gray-500 rounded-full p-4 mb-2 shadow-2xl">
+                    <i class="fas fa-lock text-3xl text-gray-400"></i>
                 </div>
-                
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-black bg-opacity-60 transition duration-300 group-hover:bg-opacity-40"></div>
-
-                <!-- Lock Overlay -->
-                <?php if ($room['is_locked']): ?>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 z-20">
-                        <i class="fas fa-lock text-4xl text-gray-500 mb-2"></i>
-                        <span class="text-gray-400 uppercase tracking-widest text-xs">Locked</span>
-                        <span class="text-gold text-xs mt-1">Lvl <?php echo $room['min_level']; ?> Required</span>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Content -->
-                <div class="absolute bottom-0 left-0 right-0 p-6 z-10 bg-gradient-to-t from-black to-transparent">
-                    <h3 class="text-xl text-white font-serif mb-2 border-b border-gold/50 pb-2 inline-block">
-                        <?php echo $room['name']; ?>
-                    </h3>
-                    <p class="text-gray-300 text-sm mb-4 line-clamp-2">
-                        <?php echo $room['description']; ?>
-                    </p>
-                    
-                    <?php if (!$room['is_locked']): ?>
-                        <a href="room.php?id=<?php echo $room['id']; ?>" class="inline-block text-gold text-sm hover:text-white transition uppercase tracking-wider">
-                            Enter Room <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                    <?php endif; ?>
+                <div class="bg-gold px-4 py-1 rounded-full shadow-lg">
+                    <span class="text-black text-xs font-bold">Lvl <?php echo $room['min_level']; ?></span>
                 </div>
             </div>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
+            <?php endif; ?>
+            
+            <!-- Room Name Tooltip -->
+            <div class="door-tooltip absolute -top-24 left-1/2 transform -translate-x-1/2 opacity-0 transition-all duration-300 pointer-events-none z-50 whitespace-nowrap">
+                <div class="bg-gradient-to-b from-amber-900/95 to-amber-950/95 border-2 border-gold px-6 py-3 rounded-lg shadow-2xl">
+                    <span class="text-gold font-serif text-lg tracking-wide"><?php echo htmlspecialchars($room['name']); ?></span>
+                    <?php if (!$room['is_locked']): ?>
+                    <span class="text-amber-200 text-xs block text-center mt-1">Click to enter</span>
+                    <?php endif; ?>
+                </div>
+                <!-- Tooltip Arrow -->
+                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-amber-950 border-r-2 border-b-2 border-gold rotate-45"></div>
+            </div>
+        </div>
+    <?php endfor; ?>
 </div>
+
+<style>
+/* Door hover effects */
+.door-item:hover .door-image {
+    filter: brightness(1.3) drop-shadow(0 0 30px rgba(212, 175, 55, 0.9));
+    transform: scale(1.08);
+}
+
+.door-item:hover .door-tooltip {
+    opacity: 1;
+    transform: translate(-50%, -10px);
+}
+
+.door-item:not([data-locked="true"]):hover {
+    z-index: 50;
+}
+
+/* Locked doors have reduced hover effect */
+.door-item[data-locked="true"]:hover .door-image {
+    filter: brightness(0.95);
+    transform: scale(1.02);
+}
+
+/* Zoom effect for transition */
+@keyframes zoomFade {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.zoom-fade-out {
+    animation: zoomFade 1s ease-in forwards;
+}
+
+/* Pulse animation for unlocked doors */
+@keyframes subtlePulse {
+    0%, 100% {
+        filter: brightness(0.85);
+    }
+    50% {
+        filter: brightness(0.95);
+    }
+}
+
+.door-item:not([data-locked="true"]) .door-image {
+    animation: subtlePulse 4s ease-in-out infinite;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const doors = document.querySelectorAll('.door-item');
+    const overlay = document.getElementById('transition-overlay');
+    const lobbyBg = document.getElementById('lobby-bg');
+    
+    doors.forEach(door => {
+        door.addEventListener('click', (e) => {
+            const isLocked = door.dataset.locked === 'true';
+            const roomId = door.dataset.roomId;
+            const roomName = door.dataset.roomName;
+            const minLevel = door.dataset.minLevel;
+            
+            if (isLocked) {
+                // Locked door feedback
+                door.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    door.style.animation = '';
+                }, 500);
+                
+                alert(`🔒 ${roomName} is locked!\nYou need Level ${minLevel} to enter this room.`);
+                return;
+            }
+            
+            // Start transition animation
+            const rect = door.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Set transform origin to the door
+            lobbyBg.style.transformOrigin = `${centerX}px ${centerY}px`;
+            lobbyBg.classList.add('zoom-fade-out');
+            
+            // Fade to black
+            setTimeout(() => {
+                overlay.style.pointerEvents = 'auto';
+                overlay.style.opacity = '1';
+            }, 300);
+            
+            // Navigate after animation
+            setTimeout(() => {
+                window.location.href = `room.php?id=${roomId}`;
+            }, 1000);
+        });
+    });
+});
+
+// Add shake animation for locked doors
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+`;
+document.head.appendChild(style);
+</script>
 
 <?php 
 $conn->close();

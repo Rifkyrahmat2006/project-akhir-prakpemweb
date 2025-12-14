@@ -148,12 +148,6 @@ class User {
         $stmt->execute();
         $quizzes = $stmt->get_result()->fetch_assoc()['count'];
         
-        // Correct answers count
-        $stmt = $conn->prepare("SELECT COUNT(*) as count FROM user_quizzes WHERE user_id = ? AND is_correct = 1");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $correct = $stmt->get_result()->fetch_assoc()['count'];
-        
         // Hidden artifacts unlocked
         $stmt = $conn->prepare("SELECT COUNT(*) as count FROM user_hidden_artifacts WHERE user_id = ?");
         $stmt->bind_param("i", $userId);
@@ -163,7 +157,6 @@ class User {
         return [
             'artifacts_collected' => $collected,
             'quizzes_completed' => $quizzes,
-            'correct_answers' => $correct,
             'hidden_artifacts' => $hidden
         ];
     }
