@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </a>
     <?php endif; ?>
     
-    <?php if ($next_room): ?>
+    <?php if ($next_room && $next_room_accessible): ?>
     <a href="room.php?id=<?php echo $next_room['id']; ?>" 
        class="room-nav-arrow room-ui-element absolute z-40 <?php echo $show_arrows ? '' : 'hidden'; ?>"
        data-direction="left"

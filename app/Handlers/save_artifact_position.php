@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../Config/database.php';
+require_once __DIR__ . '/../Config/database.php';
 
 // Check if admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {

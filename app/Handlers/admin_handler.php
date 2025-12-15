@@ -8,7 +8,7 @@
 require_once __DIR__ . '/../bootstrap.php';
 
 // Require admin access
-requireAdmin('../../public/login.php');
+requireAdmin();
 
 if (isset($_REQUEST['action'])) {
     $action = $_REQUEST['action'];

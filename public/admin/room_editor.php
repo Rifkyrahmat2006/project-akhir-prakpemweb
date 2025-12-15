@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
             
-            fetch('../app/Handlers/save_artifact_position.php', {
+            fetch('../save_artifact_position.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ positions: positions })
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const lines = dialogsTextarea.value.split('\n').filter(line => line.trim() !== '');
             const roomId = <?php echo $selected_room ? $selected_room['id'] : 0; ?>;
             
-            fetch('../app/Handlers/admin_handler.php', {
+            fetch('../admin_handler.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `action=save_room_dialogs&room_id=${roomId}&dialogs=${encodeURIComponent(JSON.stringify(lines))}`
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 xp: document.getElementById('hidden-xp').value
             };
             
-            fetch('../app/Handlers/admin_handler.php', {
+            fetch('../admin_handler.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: Object.keys(data).map(key => `${key}=${encodeURIComponent(data[key])}`).join('&')
