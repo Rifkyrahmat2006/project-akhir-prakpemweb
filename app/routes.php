@@ -31,6 +31,7 @@ $router->get('/settings', 'ProfileController@settings');
 
 // Lobby
 $router->get('/lobby', 'LobbyController@index');
+$router->get('/lobby/room/{id}', 'RoomController@show');
 $router->get('/lobby/my-collection', 'LobbyController@myCollection');
 
 // Quiz (keeping existing structure for now)

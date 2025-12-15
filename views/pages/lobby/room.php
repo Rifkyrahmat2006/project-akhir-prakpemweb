@@ -1,111 +1,17 @@
 <?php
 /**
- * Room View - Display artifacts and interactive elements
- * Uses Middleware for authentication and access control
+ * Room View Template
+ * Pure presentation layer - receives data from RoomController
+ * 
+ * Variables available from controller:
+ * - $room, $room_id, $artifacts, $collected_count, $total_artifacts
+ * - $all_collected, $hidden_artifact, $hidden_artifact_unlocked
+ * - $prev_room, $next_room, $arrow_pos, $chest_pos
+ * - $room_music, $user, $user_level, $first_visit
  */
 
-// Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
-
-// Require authentication
-requireAuth('../login.php');
-
-// Check ID parameter
-if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit();
-}
-
-$room_id = intval($_GET['id']);
-$user_id = userId();
-
-// Fetch Room Info using Model
-$room = Room::findById($conn, $room_id);
-
-if (!$room) {
-    echo "Room not found.";
-    exit();
-}
-
-// Check Access (Security) - Require minimum level
-requireLevel($room['min_level'], 'index.php');
-
-
-// Fetch Artifacts & Collection Status using Model
-$raw_artifacts = Room::getArtifacts($conn, $room_id, $user_id);
-
-// Default positions for fallback
-$fallback_positions = [
-    ['top' => '60%', 'left' => '20%'],
-    ['top' => '70%', 'left' => '50%'],
-    ['top' => '55%', 'left' => '80%'],
-    ['top' => '40%', 'left' => '30%'],
-    ['top' => '50%', 'left' => '60%'],
-];
-
-$artifacts = [];
-$collected_count = 0;
-$i = 0;
-foreach ($raw_artifacts as $row) {
-    // specific positioning from DB or fallback
-    if ($row['position_top'] && $row['position_left']) {
-        $row['top'] = $row['position_top'];
-        $row['left'] = $row['position_left'];
-    } else {
-        $pos = $fallback_positions[$i % count($fallback_positions)];
-        $row['top'] = $pos['top'];
-        $row['left'] = $pos['left'];
-    }
-    
-    if ($row['is_collected'] > 0) $collected_count++;
-    $artifacts[] = $row;
-    $i++;
-}
-
-$total_artifacts = count($artifacts);
-$all_collected = ($collected_count > 0 && $collected_count >= $total_artifacts);
-
-// Check hidden artifact status using Model
-$hidden_artifact_unlocked = Room::isHiddenArtifactUnlocked($conn, $room_id, $user_id);
-$hidden_artifact = Room::getHiddenArtifact($conn, $room_id);
-if ($hidden_artifact) {
-    $hidden_artifact['unlocked'] = $hidden_artifact_unlocked;
-}
-
-// Skip intro if already collected any artifact in this room
-$first_visit = ($collected_count == 0);
-
-// Show arrows only after hidden artifact collected
-$show_arrows = $hidden_artifact_unlocked;
-
-// Get previous and next room for navigation arrows
-$prev_room = null;
-$next_room = null;
-
-// Previous room (always available if exists)
-if ($room_id > 1) {
-    $prev_room = Room::findById($conn, $room_id - 1);
-    // Only show if user has access
-    if ($prev_room && $_SESSION['level'] < $prev_room['min_level']) {
-        $prev_room = null;
-    }
-}
-
-// Next room (always available if exists and user has access)
-$next_room = Room::findById($conn, $room_id + 1);
-if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
-    $next_room = null;
-}
-
-// Clean description for JS usage
-$desc = addslashes($room['description']);
-$room_name = addslashes($room['name']);
-
-include '../header.php';
-include '../navbar.php';
-
-// Determine room music from config
-$room_music = getRoomMusic($room['name']);
+include BASE_PATH . '/public/header.php';
+include BASE_PATH . '/public/navbar.php';
 ?>
 
 <!-- Hide Scrollbar (non-scrollable page) -->
@@ -244,18 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     <!-- Room Progress (Moved to Left) -->  
 
-    <?php
-    // Arrow position configuration per room (edit here!)
-    $arrow_positions = [
-        1 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '13%']],      // Medieval Hall
-        2 => ['prev' => ['bottom' => '40%', 'left' => '25%'], 'next' => ['bottom' => '20%', 'right' => '18%']],      // Renaissance Gallery
-        3 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '24%', 'right' => '16%']],      // Baroque Palace
-        4 => ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '5%']],      // Royal Archives
-    ];
-    $arrow_pos = $arrow_positions[$room_id] ?? ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '5%']];
-    ?>
-    
     <!-- Room Navigation Arrows (visible after hidden artifact collected) -->
+    <?php $show_arrows = $show_arrows ?? $hidden_artifact_unlocked ?? false; ?>
     <?php if ($show_arrows && $prev_room): ?>
     <a href="room.php?id=<?php echo $prev_room['id']; ?>" 
        class="room-nav-arrow room-ui-element absolute z-40"
@@ -399,20 +295,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <?php endforeach; ?>
     </div>
 
-    <?php include '../artifact_detail.php'; ?>
+    <?php include BASE_PATH . '/public/artifact_detail.php'; ?>
     
-    <?php
-    // Chest position configuration per room (edit here!)
-    $chest_positions = [
-        1 => ['top' => '63%', 'left' => '48%'],      // Medieval Hall
-        2 => ['top' => '68%', 'left' => '23%'],    // Renaissance Gallery
-        3 => ['top' => '63%', 'left' => '60%'],    // Baroque Palace
-        4 => ['top' => '80%', 'left' => '70%'],    // Royal Archives
-    ];
-    $chest_pos = $chest_positions[$room_id] ?? ['top' => '65%', 'left' => '48%'];
-    ?>
-    
-    <!-- Hidden Chest (Shows after all artifacts collected) - Always rendered for dynamic trigger -->
+    <!-- Hidden Chest (positions from controller via $chest_pos) -->
     <div id="hidden-chest" class="absolute cursor-pointer z-20 hidden transform hover:scale-110 transition-all duration-300"
          style="top: <?php echo $chest_pos['top']; ?>; left: <?php echo $chest_pos['left']; ?>;"
          data-artifact-name="<?php echo $hidden_artifact ? htmlspecialchars($hidden_artifact['name']) : 'Hidden Artifact'; ?>"
