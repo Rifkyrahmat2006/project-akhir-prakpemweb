@@ -34,7 +34,7 @@ if ($level < 4) {
     $xp_progress = 100; // Max level
 }
 $rank_name = $rank_names[$level] ?? 'Visitor';
-$base_path = '/project-akhir/public';
+$base_path = defined('BASE_URL') ? BASE_URL : '/project-akhir/public';
 $avatarUrl = $_SESSION['avatar'] ?? 'https://ui-avatars.com/api/?name=' . urlencode($username) . '&background=C5A059&color=000&size=128&font-size=0.5';
 ?>
 

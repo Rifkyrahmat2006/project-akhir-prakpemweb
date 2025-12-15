@@ -1,3 +1,9 @@
+<?php
+// Load bootstrap for BASE_URL if not already loaded
+if (!defined('BASE_URL')) {
+    require_once dirname(__DIR__) . '/app/Config/env.php';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +12,7 @@
     <title>Classic Old Europe Museum</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/project-akhir/public/icon.png">
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/icon.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,8 +43,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Custom CSS - Using absolute path from web root -->
-    <link rel="stylesheet" href="/project-akhir/public/assets/css/style.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
     
     <style>
         body {
@@ -49,6 +55,6 @@
 <body class="bg-darker-bg text-gray-200 flex flex-col min-h-screen">
     <!-- Background Music Player (Hidden) -->
     <audio id="bg-music" loop preload="auto" style="display: none;">
-        <source src="/project-akhir/public/assets/music/lobby.mp3" type="audio/mpeg">
+        <source src="<?php echo BASE_URL; ?>/assets/music/lobby.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
