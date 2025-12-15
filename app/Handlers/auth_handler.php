@@ -1,7 +1,12 @@
 <?php
 session_start();
-require_once '../Config/database.php';
-require_once '../Models/User.php';
+
+// Use __DIR__ for reliable paths regardless of where this is called from
+require_once __DIR__ . '/../Config/database.php';
+require_once __DIR__ . '/../Models/User.php';
+
+// Load env for BASE_URL
+require_once __DIR__ . '/../Config/env.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action = $_POST['action'];
@@ -13,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Validation
         if ($password !== $confirm_password) {
-            header("Location: ../../public/register.php?error=Passwords do not match");
+            header("Location: " . BASE_URL . "/register.php?error=Passwords do not match");
             exit();
         }
 
@@ -24,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->store_result();
         
         if ($stmt->num_rows > 0) {
-            header("Location: ../../public/register.php?error=Username already taken");
+            header("Location: " . BASE_URL . "/register.php?error=Username already taken");
             exit();
         }
         $stmt->close();
@@ -35,9 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("ss", $username, $hashed_password);
 
         if ($stmt->execute()) {
-            header("Location: ../../public/login.php?success=1");
+            header("Location: " . BASE_URL . "/login.php?success=1");
         } else {
-            header("Location: ../../public/register.php?error=Registration failed");
+            header("Location: " . BASE_URL . "/register.php?error=Registration failed");
         }
         $stmt->close();
 
@@ -64,16 +69,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['role'] = $user['role'];
 
                 if ($user['role'] === 'admin') {
-                    header("Location: ../../admin/");
+                    header("Location: " . BASE_URL . "/admin/");
                 } else {
-                    header("Location: ../../public/lobby/");
+                    header("Location: " . BASE_URL . "/lobby/");
                 }
                 exit();
             } else {
-                header("Location: ../../public/login.php?error=Invalid password");
+                header("Location: " . BASE_URL . "/login.php?error=Invalid password");
             }
         } else {
-            header("Location: ../../public/login.php?error=User not found");
+            header("Location: " . BASE_URL . "/login.php?error=User not found");
         }
         $stmt->close();
     }
