@@ -14,6 +14,9 @@ if (session_status() === PHP_SESSION_NONE) {
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', __DIR__);
 
+// Load environment config (defines BASE_URL)
+require_once APP_PATH . '/Config/env.php';
+
 // Autoload Middleware classes
 require_once APP_PATH . '/Middleware/AuthMiddleware.php';
 require_once APP_PATH . '/Middleware/CsrfMiddleware.php';
@@ -32,6 +35,13 @@ require_once APP_PATH . '/Core/Router.php';
 
 // Load App Configuration
 $GLOBALS['app_config'] = require APP_PATH . '/Config/app.php';
+
+/**
+ * Get base URL (uses BASE_URL constant from env.php)
+ */
+function base_url($path = '') {
+    return BASE_URL . $path;
+}
 
 /**
  * Get configuration value

@@ -124,9 +124,9 @@ class Router {
             $uri = substr($uri, 0, $pos);
         }
         
-        // Remove base path (e.g., /project-akhir/public)
-        $basePath = '/project-akhir/public';
-        if (strpos($uri, $basePath) === 0) {
+        // Remove base path using BASE_URL from env.php
+        $basePath = defined('BASE_URL') ? BASE_URL : '/project-akhir/public';
+        if (!empty($basePath) && strpos($uri, $basePath) === 0) {
             $uri = substr($uri, strlen($basePath));
         }
         
@@ -144,9 +144,10 @@ class Router {
     }
     
     /**
-     * Generate URL for a given path
+     * Generate URL for a given path (uses BASE_URL from env.php)
      */
     public static function url($path) {
-        return '/project-akhir/public' . $path;
+        $baseUrl = defined('BASE_URL') ? BASE_URL : '/project-akhir/public';
+        return $baseUrl . $path;
     }
 }

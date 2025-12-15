@@ -1,0 +1,28 @@
+# Force correct MIME Types for media files
+
+<IfModule mod_mime.c>
+    # Remove any existing handlers
+    RemoveType .mp4
+    RemoveType .mp3
+    
+    # Set correct MIME types
+    AddType video/mp4 .mp4 .m4v
+    AddType audio/mpeg .mp3
+    AddType audio/ogg .ogg
+    AddType video/webm .webm
+    AddType video/ogg .ogv
+</IfModule>
+
+# Force inline display instead of download
+
+<FilesMatch "\.(mp4|mp3|ogg|webm|m4v|ogv)$">
+Header set Content-Disposition inline
+</FilesMatch>
+
+# Enable partial content (for seeking in videos)
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(mp4|mp3|ogg|webm)$">
+        Header set Accept-Ranges bytes
+    </FilesMatch>
+</IfModule>
