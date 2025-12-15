@@ -16,7 +16,7 @@ if (!isset($_GET['room_id'])) {
     exit();
 }
 
-require_once '../Config/database.php';
+require_once __DIR__ . '/../Config/database.php';
 
 $room_id = intval($_GET['room_id']);
 

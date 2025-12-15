@@ -268,7 +268,7 @@
                     
                     // Handle level up with toast notification instead of alert
                     if (data.leveled_up) {
-                        showToast(`🎉 LEVEL UP! You are now Level ${data.new_level}!`, 'success');
+                        showToast(`LEVEL UP! You are now Level ${data.new_level}!`, 'success');
                     }
                 } else {
                     showToast(data.message || 'An error occurred', 'error');
