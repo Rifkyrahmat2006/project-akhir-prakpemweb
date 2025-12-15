@@ -1,8 +1,8 @@
 # Enable URL Rewriting
 RewriteEngine On
 
-# Set base directory
-RewriteBase /project-akhir/public/
+# Set base directory - use / for production
+RewriteBase /
 
 # Don't rewrite if file or directory exists
 RewriteCond %{REQUEST_FILENAME} !-f
