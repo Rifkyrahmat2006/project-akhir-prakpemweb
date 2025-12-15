@@ -36,6 +36,44 @@
 </div>
 
 <script>
+    // Toast notification function (replaces alerts)
+    function showToast(message, type = 'info') {
+        // Create toast container if doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gold';
+        toast.className = `${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Function to show navigation arrows dynamically (after hidden artifact unlock)
+    function showNavigationArrows() {
+        const arrows = document.querySelectorAll('.room-nav-arrow');
+        arrows.forEach(arrow => {
+            arrow.classList.remove('hidden');
+            arrow.style.display = 'flex';
+        });
+        console.log('Navigation arrows shown');
+    }
+
     // Function to update XP bar dynamically
     function updateXpBar(newXp, xpProgress, newLevel, rankName) {
         // Ensure xpProgress is a valid number
@@ -228,14 +266,12 @@
                         }
                     }
                     
-                    // Handle level up
+                    // Handle level up with toast notification instead of alert
                     if (data.leveled_up) {
-                        setTimeout(() => {
-                            alert(`LEVEL UP! You are now Level ${data.new_level}!`);
-                        }, 100);
+                        showToast(`🎉 LEVEL UP! You are now Level ${data.new_level}!`, 'success');
                     }
                 } else {
-                    alert(data.message);
+                    showToast(data.message || 'An error occurred', 'error');
                 }
             })
             .catch(err => console.error(err));

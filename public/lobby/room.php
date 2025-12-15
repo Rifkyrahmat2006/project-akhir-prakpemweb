@@ -91,11 +91,10 @@ if ($room_id > 1) {
     }
 }
 
-// Next room (always available if exists and user has access)
+// Next room (always get if exists - level check done client-side after potential level up)
 $next_room = Room::findById($conn, $room_id + 1);
-if ($next_room && $_SESSION['level'] < $next_room['min_level']) {
-    $next_room = null;
-}
+// Store whether user currently has access (may change after collecting artifacts)
+$next_room_accessible = $next_room && $_SESSION['level'] >= $next_room['min_level'];
 
 // Clean description for JS usage
 $desc = addslashes($room['description']);
@@ -255,22 +254,23 @@ document.addEventListener('DOMContentLoaded', () => {
     $arrow_pos = $arrow_positions[$room_id] ?? ['prev' => ['bottom' => '20%', 'left' => '5%'], 'next' => ['bottom' => '20%', 'right' => '5%']];
     ?>
     
-    <!-- Room Navigation Arrows (visible after hidden artifact collected) -->
-    <?php if ($show_arrows && $prev_room): ?>
+    <!-- Room Navigation Arrows (always rendered, hidden until hidden artifact collected) -->
+    <?php if ($prev_room): ?>
     <a href="room.php?id=<?php echo $prev_room['id']; ?>" 
-       class="room-nav-arrow room-ui-element absolute z-40"
+       class="room-nav-arrow room-ui-element absolute z-40 <?php echo $show_arrows ? '' : 'hidden'; ?>"
        data-direction="right"
-       style="bottom: <?php echo $arrow_pos['prev']['bottom']; ?>; left: <?php echo $arrow_pos['prev']['left']; ?>;"
+       style="bottom: 20%; left: 5%;"
        title="<?php echo htmlspecialchars($prev_room['name']); ?>">
         <i class="fas fa-chevron-left arrow-icon"></i>
     </a>
     <?php endif; ?>
     
-    <?php if ($show_arrows && $next_room): ?>
+    <?php if ($next_room): ?>
     <a href="room.php?id=<?php echo $next_room['id']; ?>" 
-       class="room-nav-arrow room-ui-element absolute z-40"
+       class="room-nav-arrow room-ui-element absolute z-40 <?php echo $show_arrows ? '' : 'hidden'; ?>"
        data-direction="left"
-       style="bottom: <?php echo $arrow_pos['next']['bottom']; ?>; right: <?php echo $arrow_pos['next']['right']; ?>;"
+       data-min-level="<?php echo $next_room['min_level']; ?>"
+       style="bottom: 20%; right: 5%;"
        title="<?php echo htmlspecialchars($next_room['name']); ?>">
         <i class="fas fa-chevron-right arrow-icon"></i>
     </a>
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                     
                     <!-- Actual Collect Button (shown after reveal) -->
-                    <button id="mystery-add-collection" class="hidden bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-8 text-sm rounded-lg transition shadow-lg">
+                    <button id="mystery-add-collection" class="hidden bg-amber-800 hover:bg-amber-900 text-amber-100 font-bold py-3 px-8 text-sm rounded-lg transition shadow-lg">
                         <i class="fas fa-plus-circle mr-2"></i> Add to Collection
                     </button>
                 </div>
@@ -1520,6 +1520,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Close mystery modal
                     closeMysteryModal();
                     
+                    // Show navigation arrows now that hidden artifact is collected
+                    if (typeof showNavigationArrows === 'function') {
+                        showNavigationArrows();
+                    }
+                    
                     // Show success message
                     showSuccessModal('Congratulations!', 'You have collected the hidden artifact!');
                 }
@@ -1577,6 +1582,16 @@ function updateXpBar(newXp, progress, newLevel, rankName) {
     if (mobileRank) mobileRank.textContent = rankName;
 }
 
+// Function to show navigation arrows dynamically (after hidden artifact collect)
+function showNavigationArrows() {
+    const arrows = document.querySelectorAll('.room-nav-arrow');
+    arrows.forEach(arrow => {
+        arrow.classList.remove('hidden');
+        arrow.style.display = 'flex';
+    });
+    console.log('Navigation arrows shown:', arrows.length);
+}
+
 // Success Modal Logic
 const successModal = document.getElementById('success-modal');
 const successTitle = document.getElementById('success-title');
@@ -1596,7 +1611,12 @@ function showSuccessModal(title, message) {
             successModal.querySelector('div').classList.add('scale-100');
         }, 10);
     } else {
-        alert(message); // Fallback
+        // Use toast instead of alert as fallback
+        if (typeof showToast === 'function') {
+            showToast(`${title}: ${message}`, 'success');
+        } else {
+            console.log(`${title}: ${message}`);
+        }
     }
 }
 

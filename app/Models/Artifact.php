@@ -107,18 +107,16 @@ class Artifact {
         $stmt->bind_param("ii", $userId, $artifactId);
         $stmt->execute();
         
-        // Add XP
+        // Add XP - this returns xp_progress, rank_name, and other data
         require_once __DIR__ . '/User.php';
         $xpResult = User::addXp($conn, $userId, $artifact['xp_reward']);
         
-        return [
+        // Merge all XP data into response (includes xp_progress, rank_name)
+        return array_merge([
             'success' => true,
             'artifact' => $artifact,
-            'xp_earned' => $artifact['xp_reward'],
-            'new_xp' => $xpResult['new_xp'],
-            'new_level' => $xpResult['new_level'],
-            'leveled_up' => $xpResult['leveled_up']
-        ];
+            'xp_earned' => $artifact['xp_reward']
+        ], $xpResult);
     }
     
     /**
