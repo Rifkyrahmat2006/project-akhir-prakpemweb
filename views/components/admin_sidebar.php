@@ -6,6 +6,11 @@
  * @param string $active - Active page identifier
  */
 
+// Ensure BASE_URL is defined
+if (!defined('BASE_URL')) {
+    require_once dirname(dirname(__DIR__)) . '/app/Config/env.php';
+}
+
 $pages = [
     'dashboard' => ['icon' => 'fa-chart-line', 'label' => 'Dashboard', 'href' => 'index.php'],
     'artifacts' => ['icon' => 'fa-boxes', 'label' => 'Manage Artifacts', 'href' => 'artifacts.php'],
@@ -36,7 +41,7 @@ $pages = [
     </nav>
 
     <div class="p-4 border-t border-gold/20">
-        <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
+        <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/lobby/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
             <i class="fas fa-eye mr-2"></i> View Site
         </a>
         <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/logout.php" class="block w-full text-center py-2 bg-red-900/30 border border-red-800 text-red-400 hover:bg-red-900/50 rounded transition">
