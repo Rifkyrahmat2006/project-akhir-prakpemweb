@@ -10,7 +10,7 @@ include BASE_PATH . '/public/header.php';
 <div class="flex-grow flex items-center justify-center relative py-20 px-4 overflow-hidden">
     <!-- Video Background -->
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-        <source src="/project-akhir/public/assets/img/endless-login.mp4" type="video/mp4">
+        <source src="<?php echo BASE_URL; ?>/assets/img/endless-login.mp4" type="video/mp4">
     </video>
     <div class="absolute inset-0 z-0 bg-black/50"></div>
     

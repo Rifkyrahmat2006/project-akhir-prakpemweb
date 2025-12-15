@@ -75,15 +75,15 @@ function getRoomMusic($roomName) {
  */
 
 // Auth helpers
-function requireAuth($redirect = '/project-akhir/public/login.php') {
+function requireAuth($redirect = null) {
     return AuthMiddleware::requireAuth($redirect);
 }
 
-function requireAdmin($redirect = '/project-akhir/public/lobby/') {
+function requireAdmin($redirect = null) {
     return AuthMiddleware::requireAdmin($redirect);
 }
 
-function requireLevel($level, $redirect = '/project-akhir/public/lobby/') {
+function requireLevel($level, $redirect = null) {
     return AuthMiddleware::requireLevel($level, $redirect);
 }
 

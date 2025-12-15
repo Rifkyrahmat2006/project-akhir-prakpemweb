@@ -13,7 +13,7 @@
 $roomId = $room['id'];
 $roomName = htmlspecialchars($room['name']);
 $roomDesc = htmlspecialchars($room['description'] ?? '');
-$roomImage = $room['image_url'] ?: '/project-akhir/public/assets/img/room-placeholder.jpg';
+$roomImage = $room['image_url'] ?: (defined('BASE_URL') ? BASE_URL : '') . '/assets/img/room-placeholder.jpg';
 $minLevel = $room['min_level'] ?? 1;
 $href = ($linkTo ?? 'room_editor.php') . '?room_id=' . $roomId;
 $label = $countLabel ?? 'Items';

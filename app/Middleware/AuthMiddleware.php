@@ -10,7 +10,10 @@ class AuthMiddleware {
      * Ensure user is logged in
      * Redirects to login page if not authenticated
      */
-    public static function requireAuth($redirectUrl = '/project-akhir/public/login.php') {
+    public static function requireAuth($redirectUrl = null) {
+        if ($redirectUrl === null) {
+            $redirectUrl = defined('BASE_URL') ? BASE_URL . '/login.php' : '/login.php';
+        }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -27,7 +30,10 @@ class AuthMiddleware {
      * Ensure user is admin
      * Redirects to lobby if not admin
      */
-    public static function requireAdmin($redirectUrl = '/project-akhir/public/lobby/') {
+    public static function requireAdmin($redirectUrl = null) {
+        if ($redirectUrl === null) {
+            $redirectUrl = defined('BASE_URL') ? BASE_URL . '/lobby/' : '/lobby/';
+        }
         self::requireAuth();
         
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -41,7 +47,10 @@ class AuthMiddleware {
     /**
      * Ensure user meets minimum level requirement
      */
-    public static function requireLevel($minLevel, $redirectUrl = '/project-akhir/public/lobby/') {
+    public static function requireLevel($minLevel, $redirectUrl = null) {
+        if ($redirectUrl === null) {
+            $redirectUrl = defined('BASE_URL') ? BASE_URL . '/lobby/' : '/lobby/';
+        }
         self::requireAuth();
         
         $userLevel = $_SESSION['level'] ?? 1;
@@ -98,14 +107,18 @@ class AuthMiddleware {
     /**
      * Redirect if already logged in (for login/register pages)
      */
-    public static function redirectIfAuthenticated($redirectUrl = '/project-akhir/public/lobby/') {
+    public static function redirectIfAuthenticated($redirectUrl = null) {
+        if ($redirectUrl === null) {
+            $redirectUrl = defined('BASE_URL') ? BASE_URL . '/lobby/' : '/lobby/';
+        }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         
         if (isset($_SESSION['user_id'])) {
             if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                header("Location: /project-akhir/admin/");
+                $adminUrl = defined('BASE_URL') ? BASE_URL . '/admin/' : '/admin/';
+                header("Location: " . $adminUrl);
             } else {
                 header("Location: " . $redirectUrl);
             }

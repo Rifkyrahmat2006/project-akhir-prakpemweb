@@ -13,7 +13,7 @@ include BASE_PATH . '/public/navbar.php';
     <!-- Animated Background -->
     <div class="absolute inset-0 z-0">
         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-110" 
-             style="background-image: url('/project-akhir/public/assets/img/home/hero.png');"></div>
+             style="background-image: url('<?php echo BASE_URL; ?>/assets/img/home/hero.png');"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black"></div>
         <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40"></div>
     </div>

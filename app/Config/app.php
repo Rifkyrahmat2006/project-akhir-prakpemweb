@@ -67,7 +67,7 @@ return [
      * Assets Paths
      */
     'assets' => [
-        'music_path' => '/project-akhir/public/assets/music/',
-        'images_path' => '/project-akhir/public/assets/img/',
+        'music_path' => (defined('BASE_URL') ? BASE_URL : '') . '/assets/music/',
+        'images_path' => (defined('BASE_URL') ? BASE_URL : '') . '/assets/img/',
     ]
 ];

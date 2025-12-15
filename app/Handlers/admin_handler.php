@@ -41,12 +41,9 @@ if (isset($_REQUEST['action'])) {
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if(move_uploaded_file($fileTmpPath, $dest_path)) {
-                    // DB Path (relative from web root or absolute logic used in project)
-                    // Currently project uses /project-akhir/public/... or relative.
-                    // room.php includes are deep. Let's use root-relative path for safety if app is in fixed folder
-                    // Or relative to public logic.
-                    // Let's use standard /project-akhir/public/assets/... for consistency with room images
-                    $img = '/project-akhir/public/assets/img/artifacts/' . $newFileName;
+                    // DB Path - use BASE_URL for portability
+                    $baseUrl = defined('BASE_URL') ? BASE_URL : '';
+                    $img = $baseUrl . '/assets/img/artifacts/' . $newFileName;
                 }
             }
         }
@@ -95,7 +92,8 @@ if (isset($_REQUEST['action'])) {
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if(move_uploaded_file($fileTmpPath, $dest_path)) {
-                    $img = '/project-akhir/public/assets/img/artifacts/' . $newFileName;
+                    $baseUrl = defined('BASE_URL') ? BASE_URL : '';
+                    $img = $baseUrl . '/assets/img/artifacts/' . $newFileName;
                 }
             }
         }

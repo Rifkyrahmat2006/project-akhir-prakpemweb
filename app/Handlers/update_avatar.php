@@ -1,10 +1,13 @@
 <?php
 session_start();
+require_once __DIR__ . '/../Config/env.php';
 require_once __DIR__ . '/../Config/database.php';
 require_once __DIR__ . '/../Models/User.php';
 
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../../public/login.php");
+    header("Location: " . $baseUrl . "/login.php");
     exit();
 }
 
@@ -26,26 +29,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["avatar"])) {
     $check = getimagesize($_FILES["avatar"]["tmp_name"]);
     if ($check === false) {
         $_SESSION['error'] = "File is not an image.";
-        header("Location: ../../public/settings.php");
+        header("Location: " . $baseUrl . "/settings.php");
         exit();
     }
 
     // Check file size (max 2MB)
     if ($_FILES["avatar"]["size"] > 2000000) {
         $_SESSION['error'] = "Sorry, your file is too large (Max 2MB).";
-        header("Location: ../../public/settings.php");
+        header("Location: " . $baseUrl . "/settings.php");
         exit();
     }
 
     // Allow certain file formats
     if ($file_extension != "jpg" && $file_extension != "png" && $file_extension != "jpeg" && $file_extension != "gif") {
         $_SESSION['error'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        header("Location: ../../public/settings.php");
+        header("Location: " . $baseUrl . "/settings.php");
         exit();
     }
 
     if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $target_file)) {
-        $avatar_path = "/project-akhir/public/uploads/avatars/" . $new_filename;
+        $avatar_path = $baseUrl . "/uploads/avatars/" . $new_filename;
         
         // Update User Model
         if (User::updateAvatar($conn, $_SESSION['user_id'], $avatar_path)) {
@@ -59,6 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["avatar"])) {
     }
 }
 
-header("Location: ../../public/settings.php");
+header("Location: " . $baseUrl . "/settings.php");
 exit();
 ?>
