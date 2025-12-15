@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT id, username, password, role, xp FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, role, xp, avatar FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -67,6 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['level'] = $calculated_level;
                 $_SESSION['xp'] = $user['xp'];
                 $_SESSION['role'] = $user['role'];
+                $_SESSION['avatar'] = $user['avatar'] ?? null;
 
                 if ($user['role'] === 'admin') {
                     header("Location: " . BASE_URL . "/admin/");

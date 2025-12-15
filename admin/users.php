@@ -22,7 +22,7 @@ while ($row = $result->fetch_assoc()) {
     $users[] = $row;
 }
 
-include '../public/header.php';
+include __DIR__ . '/../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">

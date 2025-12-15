@@ -31,7 +31,7 @@ if (!$quiz) {
 // Fetch Rooms for dropdown
 $rooms = $conn->query("SELECT id, name FROM rooms ORDER BY name")->fetch_all(MYSQLI_ASSOC);
 
-include '../public/header.php';
+include __DIR__ . '/../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">

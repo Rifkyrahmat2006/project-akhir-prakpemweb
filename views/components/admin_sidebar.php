@@ -36,10 +36,10 @@ $pages = [
     </nav>
 
     <div class="p-4 border-t border-gold/20">
-        <a href="../public/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
+        <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/index.php" class="block w-full text-center py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white rounded transition mb-2">
             <i class="fas fa-eye mr-2"></i> View Site
         </a>
-        <a href="../public/logout.php" class="block w-full text-center py-2 bg-red-900/30 border border-red-800 text-red-400 hover:bg-red-900/50 rounded transition">
+        <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/logout.php" class="block w-full text-center py-2 bg-red-900/30 border border-red-800 text-red-400 hover:bg-red-900/50 rounded transition">
             <i class="fas fa-sign-out-alt mr-2"></i> Logout
         </a>
     </div>

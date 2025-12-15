@@ -13,7 +13,7 @@ requireAdmin();
 // Fetch Stats using Model
 $stats = User::getDashboardStats($conn);
 
-include '../public/header.php';
+include __DIR__ . '/../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">

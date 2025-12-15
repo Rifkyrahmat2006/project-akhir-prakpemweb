@@ -16,7 +16,7 @@ $preselected_room_id = isset($_GET['room_id']) ? intval($_GET['room_id']) : 0;
 // Fetch Rooms for dropdown
 $rooms = $conn->query("SELECT id, name FROM rooms ORDER BY name")->fetch_all(MYSQLI_ASSOC);
 
-include '../public/header.php';
+include __DIR__ . '/../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">

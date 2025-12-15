@@ -46,7 +46,7 @@ if (isset($_GET['room_id'])) {
     }
 }
 
-include '../public/header.php';
+include __DIR__ . '/../public/header.php';
 ?>
 
 <div class="flex h-screen bg-black">
