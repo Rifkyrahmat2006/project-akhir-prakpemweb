@@ -42,7 +42,7 @@ include __DIR__ . '/header.php';
             </div>
         <?php endif; ?>
 
-        <form action="<?php echo BASE_URL; ?>/app/Handlers/auth_handler.php" method="POST" class="space-y-6">
+        <form action="auth.php" method="POST" class="space-y-6">
             <input type="hidden" name="action" value="register">
             
             <div>
