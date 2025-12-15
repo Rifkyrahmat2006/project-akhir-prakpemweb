@@ -1,21 +1,13 @@
 <?php
 /**
- * Settings Page
- * Uses Middleware for authentication
+ * Settings View
+ * Pure presentation - receives $user, $success, $error from controller
  */
 
-// Load bootstrap (includes all middleware, models, and database)
-require_once '../app/bootstrap.php';
+include BASE_PATH . '/public/header.php';
+include BASE_PATH . '/public/navbar.php';
 
-// Require authentication
-requireAuth('login.php');
-
-$user_id = userId();
-$user = User::findById($conn, $user_id);
 $avatarUrl = User::getAvatarUrl($user);
-
-include 'header.php';
-include 'navbar.php';
 ?>
 
 <div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
@@ -23,15 +15,15 @@ include 'navbar.php';
         
         <h1 class="text-3xl text-white font-serif mb-8 border-b border-white/10 pb-4">Account Settings</h1>
 
-        <?php if (isset($_SESSION['error'])): ?>
+        <?php if (!empty($error)): ?>
             <div class="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded mb-6">
-                <i class="fas fa-exclamation-circle mr-2"></i> <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                <i class="fas fa-exclamation-circle mr-2"></i> <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['success'])): ?>
+        <?php if (!empty($success)): ?>
             <div class="bg-green-500/10 border border-green-500/50 text-green-500 p-4 rounded mb-6">
-                <i class="fas fa-check-circle mr-2"></i> <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+                <i class="fas fa-check-circle mr-2"></i> <?php echo htmlspecialchars($success); ?>
             </div>
         <?php endif; ?>
 
@@ -52,7 +44,7 @@ include 'navbar.php';
                     </div>
                     
                     <div class="flex-grow w-full md:w-auto">
-                        <form action="../app/Handlers/update_avatar.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <form action="/project-akhir/app/Handlers/update_avatar.php" method="POST" enctype="multipart/form-data" class="space-y-4">
                             <div>
                                 <label class="block text-gray-400 text-sm mb-2">Upload New Avatar</label>
                                 <input type="file" name="avatar" accept="image/*" class="w-full text-sm text-gray-400
@@ -75,7 +67,7 @@ include 'navbar.php';
 
             <hr class="border-white/10 mb-10">
 
-            <!-- Profile Info Section (Read Only for now or expanded later) -->
+            <!-- Profile Info Section -->
             <div>
                 <h2 class="text-xl text-gold font-serif mb-6">Personal Information</h2>
                 <div class="grid md:grid-cols-2 gap-6">
@@ -86,14 +78,14 @@ include 'navbar.php';
                     </div>
                     <div>
                         <label class="block text-gray-500 text-xs uppercase tracking-wider mb-2">Email Address</label>
-                        <input type="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly 
+                        <input type="email" value="<?php echo htmlspecialchars($user['email'] ?? 'Not set'); ?>" readonly 
                                class="w-full bg-black/50 border border-white/10 rounded p-3 text-gray-300 focus:outline-none cursor-not-allowed">
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
-                <a href="profile.php" class="text-gray-400 hover:text-white transition-colors">
+                <a href="<?php echo Router::url('/profile'); ?>" class="text-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i> Back to Profile
                 </a>
             </div>
@@ -102,4 +94,4 @@ include 'navbar.php';
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include BASE_PATH . '/public/footer.php'; ?>

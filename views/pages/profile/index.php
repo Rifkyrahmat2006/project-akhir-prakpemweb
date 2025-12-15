@@ -1,43 +1,23 @@
 <?php
 /**
- * Profile Page
- * Uses Middleware for authentication
+ * Profile View
+ * Pure presentation - receives $user, $stats, $xpProgress from controller
  */
 
-// Load bootstrap (includes all middleware, models, and database)
-require_once '../app/bootstrap.php';
+include BASE_PATH . '/public/header.php';
+include BASE_PATH . '/public/navbar.php';
 
-// Require authentication
-requireAuth('login.php');
-
-$user_id = userId();
-
-// Fetch user data using Model
-$user = User::findById($conn, $user_id);
-
-// Get XP and level data using Model (level is calculated, not stored)
-$xp_data = User::getXpAndLevel($conn, $user_id);
-$current_level = $xp_data['level'];  // Use calculated level, not from DB!
-$current_xp = $xp_data['xp'];
-
-// Update session with latest data
-$_SESSION['xp'] = $current_xp;
-$_SESSION['level'] = $current_level;  // Use calculated level
-
-// Fetch stats using Model
-$stats = User::getStats($conn, $user_id);
+// Calculate display values from passed data
+$current_level = $user['level'];
+$current_xp = $user['xp'];
 $collection_count = $stats['artifacts_collected'];
 $quiz_count = $stats['quizzes_completed'];
+$total_artifacts = $stats['total_artifacts'] ?? 0;
+$total_quizzes = $stats['total_quizzes'] ?? 0;
+$xp_progress = $xpProgress['progress'] ?? 0;
+$xp_needed = $xpProgress['xp_needed'] ?? 0;
 
-// Total artifacts in museum
-$total_artifacts = $conn->query("SELECT COUNT(*) as count FROM artifacts")->fetch_assoc()['count'];
-
-// Total quizzes
-$total_quizzes = $conn->query("SELECT COUNT(*) as count FROM quizzes")->fetch_assoc()['count'];
-$xp_progress = $xp_data['progress'];
-$xp_needed = $xp_data['xp_for_next_level'] - $current_xp;
-
-// Get rank info
+// Rank info
 $ranks = [
     1 => ['name' => 'Visitor', 'icon' => 'fa-user', 'color' => 'text-gray-400'],
     2 => ['name' => 'Explorer', 'icon' => 'fa-compass', 'color' => 'text-blue-400'],
@@ -45,8 +25,6 @@ $ranks = [
     4 => ['name' => 'Royal Curator', 'icon' => 'fa-crown', 'color' => 'text-gold']
 ];
 $rank = $ranks[$current_level] ?? $ranks[1];
-
-// Get Avatar URL
 $avatarUrl = User::getAvatarUrl($user);
 
 // Collection badge
@@ -58,15 +36,7 @@ if ($collection_count >= 20) {
 } elseif ($collection_count >= 5) {
     $collection_badge = ['name' => 'Bronze Collector', 'class' => 'text-orange-400', 'icon' => 'fa-award'];
 }
-
-include 'header.php';
-include 'navbar.php';
 ?>
-
-<!-- Back Button - Top Left -->
-<button onclick="history.back()" class="fixed top-20 left-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-black/70 border-2 border-gold/50 text-gold hover:bg-gold hover:text-black transition-all duration-300 shadow-lg backdrop-blur-sm">
-    <i class="fas fa-arrow-left text-lg"></i>
-</button>
 
 <div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
     
@@ -101,7 +71,7 @@ include 'navbar.php';
                         </p>
                     </div>
                     
-                    <!-- New Minimal XP Bar -->
+                    <!-- XP Bar -->
                     <div class="max-w-lg mx-auto md:mx-0">
                         <div class="flex justify-between text-xs text-gray-400 mb-2 font-mono">
                             <span>CURRENT XP: <span class="text-white"><?php echo number_format($current_xp); ?></span></span>
@@ -117,7 +87,7 @@ include 'navbar.php';
                     </div>
                 </div>
                 
-                <!-- Simplified Quick Stats -->
+                <!-- Quick Stats -->
                 <div class="flex gap-6 mt-6 md:mt-0 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8">
                     <div class="text-center">
                         <div class="text-3xl font-serif text-white mb-1"><?php echo $collection_count; ?></div>
@@ -197,7 +167,7 @@ include 'navbar.php';
                 <?php endif; ?>
                 
                 <div class="mt-6 pt-4 border-t border-white/5">
-                    <a href="lobby/my_collection.php" class="block w-full text-center py-2 rounded bg-white/5 hover:bg-gold/10 hover:text-gold text-gray-400 text-sm transition-all border border-transparent hover:border-gold/30">
+                    <a href="<?php echo Router::url('/lobby/my-collection'); ?>" class="block w-full text-center py-2 rounded bg-white/5 hover:bg-gold/10 hover:text-gold text-gray-400 text-sm transition-all border border-transparent hover:border-gold/30">
                         View Full Collection
                     </a>
                 </div>
@@ -206,10 +176,10 @@ include 'navbar.php';
 
         <!-- Account Actions -->
         <div class="mt-8 flex justify-end gap-4">
-             <a href="settings.php" class="px-6 py-2 rounded border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-sm">
+             <a href="<?php echo Router::url('/settings'); ?>" class="px-6 py-2 rounded border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-sm">
                 <i class="fas fa-cog mr-2"></i>Settings
             </a>
-            <a href="logout.php" class="px-6 py-2 rounded bg-red-900/20 border border-red-900/50 text-red-500 hover:bg-red-900/40 transition-colors text-sm">
+            <a href="<?php echo Router::url('/logout'); ?>" class="px-6 py-2 rounded bg-red-900/20 border border-red-900/50 text-red-500 hover:bg-red-900/40 transition-colors text-sm">
                 <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
             </a>
         </div>
@@ -217,4 +187,4 @@ include 'navbar.php';
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include BASE_PATH . '/public/footer.php'; ?>

@@ -1,17 +1,17 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
+/**
+ * My Collection Page
+ * Uses Middleware for authentication
+ */
 
-// Database and Models
-require_once '../../app/Config/database.php';
-require_once '../../app/Models/User.php';
-require_once '../../app/Models/Artifact.php';
+// Load bootstrap (includes all middleware, models, and database)
+require_once '../../app/bootstrap.php';
 
-$user_id = $_SESSION['user_id'];
-$user_level = $_SESSION['level'] ?? 1;
+// Require authentication
+requireAuth('../login.php');
+
+$user_id = userId();
+$user_level = userLevel();
 
 // Get rank name using Model
 $rank_name = User::getRankName($user_level);

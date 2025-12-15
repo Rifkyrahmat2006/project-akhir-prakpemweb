@@ -1,12 +1,16 @@
 <?php
 /**
- * Unlock Hidden Artifact
- * Called when user passes the quiz with 50%+ correct answers
+ * Unlock Hidden Artifact Controller
+ * Pure controller - delegates business logic to Models
  */
-session_start();
+
+// Load bootstrap
+require_once __DIR__ . '/../bootstrap.php';
+
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id'])) {
+// Check authentication
+if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }
@@ -21,75 +25,44 @@ if (!isset($_POST['room_id'])) {
     exit();
 }
 
-require_once '../Config/database.php';
-require_once '../Models/Room.php';
-require_once '../Models/User.php';
-
-$user_id = $_SESSION['user_id'];
+$user_id = userId();
 $room_id = intval($_POST['room_id']);
 
-// Check if already unlocked
+// Check if already unlocked using Model
 if (Room::isHiddenArtifactUnlocked($conn, $room_id, $user_id)) {
     echo json_encode(['success' => true, 'message' => 'Already unlocked', 'already_unlocked' => true]);
     exit();
 }
 
-// Get hidden artifact info
+// Get hidden artifact info using Model
 $hidden_artifact = Room::getHiddenArtifact($conn, $room_id);
 if (!$hidden_artifact) {
     echo json_encode(['success' => false, 'message' => 'No hidden artifact for this room']);
     exit();
 }
 
-// Unlock the hidden artifact
+// Unlock the hidden artifact using Model
 $unlocked = Room::unlockHiddenArtifact($conn, $room_id, $user_id);
 
 if ($unlocked) {
-    // Award XP for unlocking the hidden artifact
+    // Award XP using Model (returns complete progress data)
     $xp_reward = $hidden_artifact['xp'] ?? 100;
-    $level_up = User::addXp($conn, $user_id, $xp_reward);
+    $xpResult = User::addXp($conn, $user_id, $xp_reward);
     
     // Update session
-    $user = User::findById($conn, $user_id);
-    $_SESSION['xp'] = $user['xp'];
-    $current_level = User::calculateLevel($user['xp']);
-    $_SESSION['level'] = $current_level;
+    $_SESSION['xp'] = $xpResult['new_xp'];
+    $_SESSION['level'] = $xpResult['new_level'];
     
-    // Calculate XP progress for client-side update (matching User model thresholds)
-    $xp_thresholds = [
-        1 => ['min' => 0, 'max' => 50],
-        2 => ['min' => 50, 'max' => 200],
-        3 => ['min' => 200, 'max' => 500],
-        4 => ['min' => 500, 'max' => 1000]
-    ];
-    $rank_names = [
-        1 => 'Novice Explorer',
-        2 => 'Apprentice Historian',
-        3 => 'Master Curator',
-        4 => 'Royal Archivist'
-    ];
-    $new_level = $current_level;
-    $new_xp = $user['xp'];
-    $current_threshold = $xp_thresholds[$new_level] ?? $xp_thresholds[1];
-    $xp_progress = 0;
-    if ($new_level < 4) {
-        $range = $current_threshold['max'] - $current_threshold['min'];
-        $progress = $new_xp - $current_threshold['min'];
-        $xp_progress = min(100, max(0, ($progress / $range) * 100));
-    } else {
-        $xp_progress = 100;
-    }
-    $rank_name = $rank_names[$new_level] ?? 'Novice Explorer';
-    
+    // Response - all progress data comes from Model
     echo json_encode([
         'success' => true,
         'message' => 'Hidden artifact unlocked!',
         'xp_reward' => $xp_reward,
-        'leveled_up' => $level_up,
-        'new_level' => $current_level,
-        'new_xp' => $user['xp'],
-        'xp_progress' => $xp_progress,
-        'rank_name' => $rank_name,
+        'leveled_up' => $xpResult['leveled_up'],
+        'new_level' => $xpResult['new_level'],
+        'new_xp' => $xpResult['new_xp'],
+        'xp_progress' => $xpResult['xp_progress'],
+        'rank_name' => $xpResult['rank_name'],
         'artifact' => $hidden_artifact
     ]);
 } else {

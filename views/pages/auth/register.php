@@ -1,22 +1,11 @@
 <?php
 /**
- * Register Page
- * Uses Middleware to redirect if already authenticated
+ * Register View
+ * Pure presentation - receives $error variable from controller
  */
 
-// Load bootstrap (includes all middleware, models, and database)
-require_once '../app/bootstrap.php';
-
-// Redirect if already logged in
-AuthMiddleware::redirectIfAuthenticated('lobby/');
-
-include 'header.php';
+include BASE_PATH . '/public/header.php';
 ?>
-
-<!-- Hide Scrollbar (non-scrollable page) -->
-<style>
-    html, body { overflow: hidden; }
-</style>
 
 <div class="flex-grow flex items-center justify-center relative py-20 px-4 overflow-hidden">
     <!-- Video Background -->
@@ -26,7 +15,7 @@ include 'header.php';
     <div class="absolute inset-0 z-0 bg-black/50"></div>
     
     <!-- Back Button -->
-    <a href="index.php" class="absolute top-6 left-6 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/50 border border-gold/30 text-gold hover:bg-gold hover:text-black transition-all duration-300">
+    <a href="<?php echo Router::url('/'); ?>" class="absolute top-6 left-6 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-black/50 border border-gold/30 text-gold hover:bg-gold hover:text-black transition-all duration-300">
         <i class="fas fa-arrow-left text-lg"></i>
     </a>
     
@@ -36,13 +25,13 @@ include 'header.php';
             <p class="text-gray-500 text-sm italic">Begin your journey as a Visitor.</p>
         </div>
 
-        <?php if(isset($_GET['error'])): ?>
+        <?php if(!empty($error)): ?>
             <div class="bg-red-900/20 border border-red-500/50 text-red-300 px-4 py-2 mb-6 text-sm text-center">
-                <?php echo htmlspecialchars($_GET['error']); ?>
+                <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
 
-        <form action="../app/Handlers/auth_handler.php" method="POST" class="space-y-6">
+        <form action="/project-akhir/app/Handlers/auth_handler.php" method="POST" class="space-y-6">
             <input type="hidden" name="action" value="register">
             
             <div>
@@ -74,14 +63,13 @@ include 'header.php';
         <div class="mt-6 text-center">
             <p class="text-gray-500 text-sm">
                 Already have an account? 
-                <a href="login.php" class="text-gold hover:text-gold-hover underline decoration-dotted">Login here</a>
+                <a href="<?php echo Router::url('/login'); ?>" class="text-gold hover:text-gold-hover underline decoration-dotted">Login here</a>
             </p>
         </div>
     </div>
 </div>
 
 <script>
-// Stop video when leaving the page
 const bgVideo = document.querySelector('video');
 if (bgVideo) {
     window.addEventListener('beforeunload', () => {

@@ -1,13 +1,15 @@
 <?php
-session_start();
-if (isset($_SESSION['user_id'])) {
-    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-        header("Location: ../admin/");
-    } else {
-        header("Location: lobby/");
-    }
-    exit();
-}
+/**
+ * Login Page
+ * Uses Middleware to redirect if already authenticated
+ */
+
+// Load bootstrap (includes all middleware, models, and database)
+require_once '../app/bootstrap.php';
+
+// Redirect if already logged in
+AuthMiddleware::redirectIfAuthenticated('lobby/');
+
 include 'header.php';
 ?>
 
