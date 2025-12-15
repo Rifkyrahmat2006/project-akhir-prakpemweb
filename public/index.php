@@ -155,8 +155,8 @@ include __DIR__ . '/navbar.php';
             <div class="w-24 h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto"></div>
         </div>
         
-        <div class="max-w-4xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-center text-center">
                 <!-- Step 1 -->
                 <div class="relative">
                     <div class="w-14 h-14 rounded-full bg-gold text-black flex items-center justify-center mx-auto mb-4 font-bold text-xl font-serif">1</div>
