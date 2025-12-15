@@ -5,12 +5,12 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Redirect if already logged in
 AuthMiddleware::redirectIfAuthenticated('lobby/');
 
-include 'header.php';
+include __DIR__ . '/header.php';
 ?>
 
 <!-- Hide Scrollbar (non-scrollable page) -->
@@ -21,7 +21,7 @@ include 'header.php';
 <div class="flex-grow flex items-center justify-center relative py-20 px-4 overflow-hidden">
     <!-- Video Background -->
     <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-        <source src="/project-akhir/public/assets/img/endless-login.mp4" type="video/mp4">
+        <source src="<?php echo BASE_URL; ?>/assets/img/endless-login.mp4" type="video/mp4">
     </video>
     <div class="absolute inset-0 z-0 bg-black/50"></div>
     
@@ -42,7 +42,7 @@ include 'header.php';
             </div>
         <?php endif; ?>
 
-        <form action="../app/Handlers/auth_handler.php" method="POST" class="space-y-6">
+        <form action="<?php echo BASE_URL; ?>/app/Handlers/auth_handler.php" method="POST" class="space-y-6">
             <input type="hidden" name="action" value="register">
             
             <div>

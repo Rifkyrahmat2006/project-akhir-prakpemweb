@@ -1,16 +1,21 @@
 <?php
 session_start();
+
+// Load environment configuration for BASE_URL
+require_once __DIR__ . '/../app/Config/env.php';
+
 // Redirect to lobby if already logged in
 if (isset($_SESSION['user_id'])) {
     if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-        header("Location: ../admin/");
+        header("Location: " . BASE_URL . "/admin/");
     } else {
-        header("Location: lobby/");
+        header("Location: " . BASE_URL . "/lobby/");
     }
     exit();
 }
-include 'header.php';
-include 'navbar.php';
+
+include __DIR__ . '/header.php';
+include __DIR__ . '/navbar.php';
 ?>
 
 <!-- Hero Section -->
@@ -258,4 +263,4 @@ include 'navbar.php';
     }
 </style>
 
-<?php include 'footer.php'; ?>
+<?php include __DIR__ . '/footer.php'; ?>
