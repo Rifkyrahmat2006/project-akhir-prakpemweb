@@ -5,7 +5,7 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Require authentication
 requireAuth('../login.php');
@@ -38,7 +38,7 @@ include '../header.php';
 include '../navbar.php';
 ?>
 
-<div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
+<div class="min-h-screen bg-black text-gray-200" style="background-image: url('<?php echo BASE_URL; ?>/assets/img/pattern_dark.png');">
     
     <div class="container mx-auto px-4 py-8 page-fade-in max-w-7xl">
         

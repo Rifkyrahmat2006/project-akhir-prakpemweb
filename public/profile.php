@@ -68,7 +68,7 @@ include 'navbar.php';
     <i class="fas fa-arrow-left text-lg"></i>
 </button>
 
-<div class="min-h-screen bg-black text-gray-200" style="background-image: url('/project-akhir/public/assets/img/pattern_dark.png');">
+<div class="min-h-screen bg-black text-gray-200" style="background-image: url('<?php echo BASE_URL; ?>/assets/img/pattern_dark.png');">
     
     <div class="container mx-auto px-4 py-8 page-fade-in max-w-5xl">
         

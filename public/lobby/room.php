@@ -5,7 +5,7 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Require authentication
 requireAuth('../login.php');
@@ -114,11 +114,14 @@ $room_music = getRoomMusic($room['name']);
 
 <!-- Room-Specific Background Music -->
 <audio id="room-music" loop preload="auto" style="display: none;">
-    <source src="/project-akhir/public/assets/music/<?php echo $room_music; ?>" type="audio/mpeg">
+    <source src="<?php echo BASE_URL; ?>/assets/music/<?php echo $room_music; ?>" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 
 <script>
+// Base URL for JavaScript
+const BASE_URL_JS = '<?php echo BASE_URL; ?>';
+
 // Room Music Control
 document.addEventListener('DOMContentLoaded', function() {
     const lobbyMusic = document.getElementById('bg-music');
@@ -159,8 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Professor Aldric - Direct child for proper z-index -->
     <div id="professor-container" class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-30 pointer-events-none transition-all duration-700 ease-out flex items-end">
-        <img id="prof-gif" src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
-        <img id="prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+        <img id="prof-gif" src="<?php echo BASE_URL; ?>/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+        <img id="prof-idle" src="<?php echo BASE_URL; ?>/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
     </div>
     
     <!-- Dialogue Area - Bottom -->
@@ -424,14 +427,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="absolute inset-1 rounded-full bg-yellow-300/30 blur-lg"></div>
         <!-- Chest Image - Changes based on unlock status -->
         <img id="chest-image" 
-             src="/project-akhir/public/assets/img/artifacts/<?php echo $hidden_artifact_unlocked ? 'chest-opened.png' : 'chest.png'; ?>" 
+             src="<?php echo BASE_URL; ?>/assets/img/artifacts/<?php echo $hidden_artifact_unlocked ? 'chest-opened.png' : 'chest.png'; ?>" 
              alt="Hidden Chest" 
              class="relative z-10 w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(251,191,36,0.4)]">
     </div>
     
     <!-- Mystery Artifact Modal (Shows when chest is clicked) -->
     <div id="mystery-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
-        <div class="relative px-20 py-12 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[550px] min-h-[650px] flex flex-col items-center justify-center" id="mystery-content" style="background-image: url('/project-akhir/public/assets/img/elements/old-paper.png');">
+        <div class="relative px-20 py-12 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[550px] min-h-[650px] flex flex-col items-center justify-center" id="mystery-content" style="background-image: url('<?php echo BASE_URL; ?>/assets/img/elements/old-paper.png');">
             
             <!-- Close X Button -->
             <button id="mystery-close" class="absolute top-12 right-12 w-8 h-8 flex items-center justify-center rounded-full bg-amber-900/30 hover:bg-amber-900/50 text-amber-900 hover:text-amber-800 text-lg font-bold transition-all z-20">
@@ -477,8 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="quiz-dialogue-modal" class="fixed inset-0 z-[100] flex flex-col justify-end bg-black/90 hidden">
         <!-- Professor Container -->
         <div id="quiz-professor-container" class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-30 pointer-events-none transition-all duration-700 ease-out flex items-end">
-            <img id="quiz-prof-gif" src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
-            <img id="quiz-prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+            <img id="quiz-prof-gif" src="<?php echo BASE_URL; ?>/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+            <img id="quiz-prof-idle" src="<?php echo BASE_URL; ?>/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
         
         <!-- Dialogue Area -->
@@ -522,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     <!-- PIN Input Modal (Card Paper Design) -->
     <div id="pin-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
-        <div class="relative px-12 py-10 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[400px] min-h-[450px] flex flex-col items-center justify-center" id="pin-content" style="background-image: url('/project-akhir/public/assets/img/elements/old-paper.png');">
+        <div class="relative px-12 py-10 text-center transform scale-90 transition-transform duration-300 bg-contain bg-center bg-no-repeat min-w-[400px] min-h-[450px] flex flex-col items-center justify-center" id="pin-content" style="background-image: url('<?php echo BASE_URL; ?>/assets/img/elements/old-paper.png');">
             
             <!-- Close X Button -->
             <button id="pin-close" class="absolute top-8 right-8 w-8 h-8 flex items-center justify-center rounded-full bg-amber-900/30 hover:bg-amber-900/50 text-amber-900 hover:text-amber-800 text-lg font-bold transition-all z-20">
@@ -564,8 +567,8 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="congrats-modal" class="fixed inset-0 z-[100] hidden flex flex-col justify-end bg-black/90 opacity-0 transition-opacity duration-300">
         <!-- Professor Container - Same as intro -->
         <div id="congrats-professor-container" class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-30 pointer-events-none transition-all duration-700 ease-out flex items-end">
-            <img id="congrats-prof-gif" src="/project-akhir/public/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
-            <img id="congrats-prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+            <img id="congrats-prof-gif" src="<?php echo BASE_URL; ?>/assets/img/professor.gif" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+            <img id="congrats-prof-idle" src="<?php echo BASE_URL; ?>/assets/img/professor-diam.png" alt="Professor Aldric" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
         
         <!-- Dialogue Area - Bottom (Same as intro) -->
@@ -1021,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chest.innerHTML = `
                     <div class="absolute inset-[-15px] rounded-lg bg-amber-400/40 blur-xl animate-pulse"></div>
                     <div class="absolute inset-[-8px] rounded-lg bg-yellow-300/50 blur-md"></div>
-                    <img src="/project-akhir/public/assets/img/artifacts/chest.png" alt="Hidden Chest" 
+                    <img src="${BASE_URL_JS}/assets/img/artifacts/chest.png" alt="Hidden Chest" 
                          class="relative z-10 w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(251,191,36,0.8)]">
                 `;
                 
@@ -1053,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryTitle.textContent = chest.dataset.artifactName;
             mysteryDesc.textContent = chest.dataset.artifactDesc;
             if (chest.dataset.artifactImage) {
-                mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
+                mysteryImageContainer.innerHTML = `<img src="${BASE_URL_JS}/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
             }
             mysteryCollect.innerHTML = '<i class="fas fa-check mr-2"></i> Already Collected!';
             mysteryCollect.disabled = true;
@@ -1066,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryTitle.textContent = chest.dataset.artifactName;
             mysteryDesc.textContent = chest.dataset.artifactDesc;
             if (chest.dataset.artifactImage) {
-                mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
+                mysteryImageContainer.innerHTML = `<img src="${BASE_URL_JS}/assets/img/artifacts/hidden/${chest.dataset.artifactImage}" alt="Hidden Artifact" class="w-36 h-36 object-contain">`;
             }
             mysteryCollect.classList.add('hidden');
             if (mysteryAddBtn) {
@@ -1470,7 +1473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Show real artifact image
         if (mysteryImageContainer && artifactImage) {
-            mysteryImageContainer.innerHTML = `<img src="/project-akhir/public/assets/img/artifacts/hidden/${artifactImage}" alt="${artifactName}" class="w-36 h-36 object-contain">`;
+            mysteryImageContainer.innerHTML = `<img src="${BASE_URL_JS}/assets/img/artifacts/hidden/${artifactImage}" alt="${artifactName}" class="w-36 h-36 object-contain">`;
         }
         
         // Hide "Collect?" button, show "Add to Collection" button
@@ -1513,7 +1516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Change chest image to opened
                         const chestImg = document.getElementById('chest-image');
                         if (chestImg) {
-                            chestImg.src = '/project-akhir/public/assets/img/artifacts/chest-opened.png';
+                            chestImg.src = `${BASE_URL_JS}/assets/img/artifacts/chest-opened.png`;
                         }
                     }
                     

@@ -5,10 +5,10 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Require authentication
-requireAuth('../login.php');
+requireAuth(BASE_URL . '/login.php');
 
 $user_level = userLevel();
 
@@ -22,10 +22,10 @@ foreach ($all_rooms as $room) {
 
 // Door images in order: Medieval, Renaissance, Baroque, Archive
 $door_images = [
-    '/project-akhir/public/assets/img/medievaldoor.png',
-    '/project-akhir/public/assets/img/renaissancedoor.png',
-    '/project-akhir/public/assets/img/baroquedoor.png',
-    '/project-akhir/public/assets/img/archivedoor.png',
+    BASE_URL . '/assets/img/medievaldoor.png',
+    BASE_URL . '/assets/img/renaissancedoor.png',
+    BASE_URL . '/assets/img/baroquedoor.png',
+    BASE_URL . '/assets/img/archivedoor.png',
 ];
 
 // Door positions - uniform size, same bottom alignment, slightly smaller
@@ -36,8 +36,8 @@ $door_positions = [
     ['left' => '80%', 'bottom' => '8%', 'height' => '50%'],
 ];
 
-include '../header.php';
-include '../navbar.php';
+include __DIR__ . '/../header.php';
+include __DIR__ . '/../navbar.php';
 ?>
 
 <!-- Hide Scrollbar (non-scrollable page) -->
@@ -47,7 +47,7 @@ include '../navbar.php';
 
 <!-- Lobby Background Music -->
 <audio id="lobby-music" loop preload="auto" style="display: none;">
-    <source src="/project-akhir/public/assets/music/lobby.mp3" type="audio/mpeg">
+    <source src="<?php echo BASE_URL; ?>/assets/music/lobby.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- Lobby Container -->
 <div class="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black">
     <!-- Background Image - roomchoice.png -->
-    <img src="/project-akhir/public/assets/img/roomchoice.png" 
+    <img src="<?php echo BASE_URL; ?>/assets/img/roomchoice.png" 
          alt="Museum Lobby" 
          class="w-full h-full object-cover object-center"
          id="lobby-bg">

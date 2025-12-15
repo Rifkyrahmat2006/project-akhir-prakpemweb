@@ -5,7 +5,7 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Require authentication
 requireAuth('../login.php');
@@ -102,8 +102,8 @@ include '../header.php';
         
         <!-- Professor Container - Same size as room.php intro -->
         <div class="absolute bottom-0 left-0 md:left-[-2rem] h-[125vh] w-[400px] z-40 pointer-events-none flex items-end">
-            <img id="prof-talking" src="/project-akhir/public/assets/img/professor.gif" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
-            <img id="prof-idle" src="/project-akhir/public/assets/img/professor-diam.png" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+            <img id="prof-talking" src="<?php echo BASE_URL; ?>/assets/img/professor.gif" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)] hidden">
+            <img id="prof-idle" src="<?php echo BASE_URL; ?>/assets/img/professor-diam.png" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
 
         <!-- Dialogue Box -->

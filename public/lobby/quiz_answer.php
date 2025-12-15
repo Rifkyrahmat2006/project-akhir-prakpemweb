@@ -5,7 +5,7 @@
  */
 
 // Load bootstrap (includes all middleware, models, and database)
-require_once '../../app/bootstrap.php';
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Require authentication
 requireAuth('../login.php');
@@ -77,7 +77,7 @@ include '../header.php';
         
         <!-- Professor Container - z-40 to be in front of dialog box -->
         <div class="absolute bottom-0 left-0 md:left-4 h-[70vh] w-[300px] z-40 pointer-events-none flex items-end">
-            <img src="/project-akhir/public/assets/img/professor.gif" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
+            <img src="<?php echo BASE_URL; ?>/assets/img/professor.gif" alt="Professor" class="h-auto max-h-full w-auto object-contain object-bottom drop-shadow-[0_0_50px_rgba(197,160,89,0.3)]">
         </div>
 
         <!-- Dialogue Box -->
