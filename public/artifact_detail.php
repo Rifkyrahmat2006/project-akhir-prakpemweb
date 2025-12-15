@@ -192,9 +192,9 @@
             const formData = new FormData();
             formData.append('artifact_id', currentArtifactId);
 
-            // Path adjustment: Since this file is included in files inside /lobby/, 
-            // the relative path ../app/Handlers/collect.php is correct.
-            fetch('../../app/Handlers/collect.php', {
+            // Use proxy handler in public folder for production compatibility
+            const baseUrl = typeof BASE_URL_JS !== 'undefined' ? BASE_URL_JS : '';
+            fetch(baseUrl + '/collect.php', {
                 method: 'POST',
                 body: formData
             })

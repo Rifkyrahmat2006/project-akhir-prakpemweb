@@ -52,7 +52,7 @@ include 'navbar.php';
                     </div>
                     
                     <div class="flex-grow w-full md:w-auto">
-                        <form action="../app/Handlers/update_avatar.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <form action="<?php echo BASE_URL; ?>/update_avatar.php" method="POST" enctype="multipart/form-data" class="space-y-4">
                             <div>
                                 <label class="block text-gray-400 text-sm mb-2">Upload New Avatar</label>
                                 <input type="file" name="avatar" accept="image/*" class="w-full text-sm text-gray-400

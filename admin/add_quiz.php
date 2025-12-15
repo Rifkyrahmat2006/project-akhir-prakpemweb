@@ -5,10 +5,10 @@
  */
 
 // Load bootstrap
-require_once '../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Require admin access
-requireAdmin('../public/login.php');
+requireAdmin();
 
 // Pre-selected room from URL
 $preselected_room_id = isset($_GET['room_id']) ? intval($_GET['room_id']) : 0;

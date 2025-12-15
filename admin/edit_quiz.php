@@ -5,10 +5,10 @@
  */
 
 // Load bootstrap
-require_once '../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Require admin access
-requireAdmin('../public/login.php');
+requireAdmin();
 
 // Get quiz ID
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;

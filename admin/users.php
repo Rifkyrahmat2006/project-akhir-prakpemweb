@@ -5,10 +5,10 @@
  */
 
 // Load bootstrap
-require_once '../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Require admin access
-requireAdmin('../public/login.php');
+requireAdmin();
 
 // Fetch Users
 $sql = "SELECT id, username, level, xp, created_at, 

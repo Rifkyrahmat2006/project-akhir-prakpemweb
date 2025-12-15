@@ -5,10 +5,10 @@
  */
 
 // Load bootstrap
-require_once '../app/bootstrap.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Require admin access
-requireAdmin('../public/login.php');
+requireAdmin();
 
 // Fetch Stats using Model
 $stats = User::getDashboardStats($conn);

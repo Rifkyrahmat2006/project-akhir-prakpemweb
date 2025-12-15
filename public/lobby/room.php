@@ -1139,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch quiz questions from server
     async function fetchAndStartQuiz() {
         try {
-            const response = await fetch(`../../app/Handlers/get_quiz.php?room_id=<?php echo $room_id; ?>`);
+            const response = await fetch(`${BASE_URL_JS}/get_quiz.php?room_id=<?php echo $room_id; ?>`);
             const data = await response.json();
             
             if (data.success && data.questions.length > 0) {
@@ -1495,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mysteryAddBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Collecting...';
             
             try {
-                const response = await fetch('../../app/Handlers/unlock_hidden.php', {
+                const response = await fetch(`${BASE_URL_JS}/unlock_hidden.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `room_id=<?php echo $room_id; ?>`
